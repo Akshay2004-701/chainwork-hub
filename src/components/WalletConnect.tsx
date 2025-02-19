@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { switchToElectroneum } from '@/lib/contract';
 import { Button } from '@/components/ui/button';
-import { Wallet } from 'lucide-react';
+import { Wallet, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export const WalletConnect = () => {
@@ -38,6 +38,15 @@ export const WalletConnect = () => {
     }
   };
 
+  const disconnectWallet = () => {
+    setAddress('');
+    localStorage.removeItem('walletAddress');
+    toast({
+      title: "Wallet disconnected",
+      description: "Your wallet has been disconnected",
+    });
+  };
+
   useEffect(() => {
     const checkConnection = async () => {
       if (window.ethereum) {
@@ -55,11 +64,20 @@ export const WalletConnect = () => {
 
   return (
     <Button
-      onClick={connectWallet}
+      onClick={address ? disconnectWallet : connectWallet}
       className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-full"
     >
-      <Wallet className="w-4 h-4 mr-2" />
-      {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connect Wallet'}
+      {address ? (
+        <>
+          <LogOut className="w-4 h-4 mr-2" />
+          {`${address.slice(0, 6)}...${address.slice(-4)}`}
+        </>
+      ) : (
+        <>
+          <Wallet className="w-4 h-4 mr-2" />
+          Connect Wallet
+        </>
+      )}
     </Button>
   );
 };

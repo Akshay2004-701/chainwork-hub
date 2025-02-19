@@ -11,6 +11,7 @@ import { formatDate, formatAmount } from "@/lib/contract";
 
 interface Task {
   id: number;
+  taskProvider: string;  // Added this field
   description: string;
   bounty: bigint;
   deadline: number;
@@ -50,6 +51,7 @@ const MyTasks = () => {
       const formattedTasks = tasksData
         .map((task, index) => ({
           id: Number(task[0]),
+          taskProvider: task[1],  // Added this field in mapping
           description: task[2],
           bounty: task[3],
           deadline: Number(task[7]),
@@ -57,7 +59,7 @@ const MyTasks = () => {
           isCancelled: task[5],
           submissions: submissionsData[index]
         }))
-        .filter(task => task.id > 0 && currentAccount[0].toLowerCase() === task.provider?.toLowerCase());
+        .filter(task => task.id > 0 && currentAccount[0].toLowerCase() === task.taskProvider.toLowerCase());  // Updated to use taskProvider
 
       setTasks(formattedTasks);
     } catch (error: any) {

@@ -36,9 +36,16 @@ export const WalletConnect = () => {
         return;
       }
 
+      // First switch to Electroneum network
       await switchToElectroneum();
       
-      // Force MetaMask to show the account selection modal
+      // Force MetaMask to show the account selection modal every time
+      await window.ethereum.request({
+        method: 'wallet_requestPermissions',
+        params: [{ eth_accounts: {} }],
+      });
+      
+      // After permission is granted, get the selected account
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       });
@@ -50,19 +57,8 @@ export const WalletConnect = () => {
         title: "Wallet connected",
         description: "Successfully connected to Electroneum testnet",
       });
-
-      // Listen for account changes
-      window.ethereum.on('accountsChanged', async (newAccounts: string[]) => {
-        if (newAccounts.length === 0) {
-          // User disconnected wallet
-          disconnectWallet();
-        } else {
-          setAddress(newAccounts[0]);
-          await updateBalance(newAccounts[0]);
-        }
-      });
-
     } catch (error: any) {
+      // If user rejected the connection or closed MetaMask
       toast({
         title: "Connection failed",
         description: error.message,
@@ -81,7 +77,33 @@ export const WalletConnect = () => {
     });
   };
 
-  // Update balance periodically
+  // Handle account changes
+  useEffect(() => {
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', async (newAccounts: string[]) => {
+        if (newAccounts.length === 0) {
+          disconnectWallet();
+        } else {
+          setAddress(newAccounts[0]);
+          await updateBalance(newAccounts[0]);
+        }
+      });
+
+      window.ethereum.on('chainChanged', () => {
+        // Reload the page when chain changes
+        window.location.reload();
+      });
+    }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', () => {});
+        window.ethereum.removeListener('chainChanged', () => {});
+      }
+    };
+  }, []);
+
+  // Update balance periodically if connected
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
     

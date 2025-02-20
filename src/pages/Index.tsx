@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { WalletConnect } from '@/components/WalletConnect';
 import { TaskCard } from '@/components/TaskCard';
 import { getContract } from '@/lib/contract';
 import { useToast } from '@/hooks/use-toast';
@@ -43,16 +42,13 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-              ChainWork
-            </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Decentralized freelancing platform on Electroneum
-            </p>
-          </div>
-          <WalletConnect />
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+            ChainWork
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Decentralized freelancing platform on Electroneum
+          </p>
         </div>
 
         <div className="flex justify-between items-center mb-6">

@@ -21,6 +21,7 @@ export const WalletConnect = () => {
       }
 
       await switchToElectroneum();
+      // Always request accounts when connecting, even if previously connected
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       });
@@ -48,6 +49,7 @@ export const WalletConnect = () => {
   };
 
   useEffect(() => {
+    // Only check if wallet was previously connected, don't auto-connect
     const checkConnection = async () => {
       if (window.ethereum) {
         const accounts = await window.ethereum.request({
@@ -55,7 +57,6 @@ export const WalletConnect = () => {
         });
         if (accounts.length > 0) {
           setAddress(accounts[0]);
-          await switchToElectroneum();
         }
       }
     };

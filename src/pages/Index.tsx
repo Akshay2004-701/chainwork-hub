@@ -1,87 +1,67 @@
 
-import { useState, useEffect } from 'react';
-import { TaskCard } from '@/components/TaskCard';
-import { getContract } from '@/lib/contract';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const loadTasks = async () => {
-      try {
-        const contract = await getContract();
-        const counter = await contract.getCounter();
-        const taskPromises = [];
-
-        for (let i = 1; i <= counter; i++) {
-          taskPromises.push(contract.getTask(i));
-        }
-
-        const tasksData = await Promise.all(taskPromises);
-        setTasks(tasksData);
-      } catch (error: any) {
-        toast({
-          title: "Failed to load tasks",
-          description: error.message,
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadTasks();
-  }, [toast]);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-            ChainWork
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Decentralized freelancing platform on Electroneum
-          </p>
-        </div>
-
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">Available Tasks</h2>
-          <Link to="/create-task">
-            <Button className="bg-gradient-to-r from-teal-500 to-emerald-500">
-              <Plus className="w-4 h-4 mr-2" />
-              Post a Task
-            </Button>
-          </Link>
-        </div>
-
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-white dark:bg-gray-800 rounded-lg p-6 h-48" />
-            ))}
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="mb-8">
+            <img 
+              src="/placeholder.svg" 
+              alt="ChainWork Logo" 
+              className="w-32 h-32 mx-auto mb-6"
+            />
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+              ChainWork
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+              The decentralized freelancing platform on Electroneum that connects talented freelancers with ambitious projects.
+              Experience secure, transparent, and efficient collaboration powered by blockchain technology.
+            </p>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tasks.map((task, index) => (
-              <TaskCard
-                key={index}
-                id={Number(task[0])}
-                description={task[2]}
-                bounty={task[3]}
-                deadline={Number(task[7])}
-                isCompleted={task[4]}
-                isCancelled={task[5]}
-              />
-            ))}
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/create-task">
+              <Button className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600">
+                <Plus className="w-4 h-4 mr-2" />
+                Post a Task
+              </Button>
+            </Link>
+            <Link to="/available-tasks">
+              <Button 
+                variant="outline" 
+                className="w-full sm:w-auto border-2 border-teal-500 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950"
+              >
+                <Search className="w-4 h-4 mr-2" />
+                Browse Tasks
+              </Button>
+            </Link>
           </div>
-        )}
+
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+              <h3 className="text-xl font-semibold mb-2">Secure Payments</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Smart contracts ensure secure and automatic payments upon task completion
+              </p>
+            </div>
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+              <h3 className="text-xl font-semibold mb-2">Transparent</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                All transactions and task histories are recorded on the blockchain
+              </p>
+            </div>
+            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+              <h3 className="text-xl font-semibold mb-2">No Middleman</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Direct interaction between clients and freelancers
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

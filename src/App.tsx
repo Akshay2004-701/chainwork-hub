@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import TaskDetails from "./pages/TaskDetails";
 import AvailableTasks from "./pages/AvailableTasks";
 import NotFound from "./pages/NotFound";
+import ChatwithAI from "./pages/ChatwithAI";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/tasks/:id" element={<TaskDetails />} />
             <Route path="*" element={<NotFound />} />
+            <Route path="/chatwithai" element={<ChatwithAI />} />
           </Routes>
         </div>
       </TooltipProvider>

@@ -1,4 +1,4 @@
-
+import Logo from "../assets/Logo.png"
 import { Button } from '@/components/ui/button';
 import { Plus, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -8,11 +8,11 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto text-center">
-          <div className="mb-8">
+          <div className="mb-8 ">
             <img 
-              src="/placeholder.svg" 
+              src={Logo}
               alt="ChainWork Logo" 
-              className="w-32 h-32 mx-auto mb-6"
+              className="w-32 h-32 mx-auto mb-6 rounded-full"
             />
             <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
               ChainWork

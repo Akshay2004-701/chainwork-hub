@@ -11,6 +11,7 @@ import {
   User,
   Sun,
   Moon,
+  Bot,
 } from "lucide-react";
 
 export const Navbar = () => {
@@ -27,6 +28,7 @@ export const Navbar = () => {
     { path: "/", label: "Home", icon: Home },
     { path: "/create-task", label: "Post Task", icon: PlusSquare },
     { path: "/my-tasks", label: "My Tasks", icon: ClipboardList },
+    { path: "/ai-chat", label: "AI Chat", icon: Bot },
     { path: "/profile", label: "Profile", icon: User },
   ];
 

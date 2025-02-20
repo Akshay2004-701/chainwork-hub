@@ -11,6 +11,7 @@ import MyTasks from "./pages/MyTasks";
 import Profile from "./pages/Profile";
 import TaskDetails from "./pages/TaskDetails";
 import AvailableTasks from "./pages/AvailableTasks";
+import AIChat from "./pages/AIChat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/create-task" element={<CreateTask />} />
             <Route path="/my-tasks" element={<MyTasks />} />
             <Route path="/available-tasks" element={<AvailableTasks />} />
+            <Route path="/ai-chat" element={<AIChat />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/tasks/:id" element={<TaskDetails />} />
             <Route path="*" element={<NotFound />} />

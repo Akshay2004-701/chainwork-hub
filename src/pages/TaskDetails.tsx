@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -43,12 +42,14 @@ const TaskDetails = () => {
 
   const loadTask = async () => {
     try {
+      if (!id) return;
+
       // Fetch complete task data from backend
       const taskData = await taskApi.getTask(Number(id));
       
       // Only fetch submissions from blockchain
       const contract = await getContract();
-      const submissionsData = await contract.getSubmissions(id);
+      const submissionsData = await contract.getSubmissions(BigInt(id));
       
       const accounts = await window.ethereum.request({
         method: 'eth_accounts'
@@ -76,7 +77,7 @@ const TaskDetails = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!submissionLink) {
+    if (!submissionLink || !id) {
       toast({
         title: "Missing submission link",
         description: "Please provide a submission link",
@@ -88,7 +89,7 @@ const TaskDetails = () => {
     setIsSubmitting(true);
     try {
       const contract = await getContract();
-      const taskId = BigInt(id as string);
+      const taskId = BigInt(id);
       const tx = await contract.submitWork(taskId, submissionLink);
       await tx.wait();
       
@@ -111,13 +112,15 @@ const TaskDetails = () => {
   };
 
   const handleApprove = async (freelancerAddress: string) => {
+    if (!id) return;
+
     try {
       const contract = await getContract();
-      const taskId = BigInt(id as string);
+      const taskId = BigInt(id);
       const tx = await contract.approveSubmission(taskId, [freelancerAddress]);
       await tx.wait();
 
-      // Update task status in backend with number type
+      // Update task status in backend
       await taskApi.completeTask(Number(id));
       
       toast({
@@ -136,10 +139,13 @@ const TaskDetails = () => {
   };
 
   const handleCancel = async () => {
+    if (!id) return;
+
     try {
       // Cancel on blockchain
       const contract = await getContract();
-      const tx = await contract.cancelTask(id);
+      const taskId = BigInt(id);
+      const tx = await contract.cancelTask(taskId);
       await tx.wait();
 
       // Update task status in backend
@@ -175,10 +181,10 @@ const TaskDetails = () => {
     );
   }
 
-  const isExpired = Date.now() > task.deadline * 1000;
-  const hasSubmitted = task.submissions.some(
+  const isExpired = new Date(task.deadline).getTime() < Date.now();
+  const hasSubmitted = task.submissions?.some(
     s => s.freelancer.toLowerCase() === userAddress.toLowerCase()
-  );
+  ) ?? false;
 
   return (
     <div className="container max-w-3xl mx-auto px-4 py-8">

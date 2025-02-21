@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -13,13 +14,17 @@ import { formatDate, formatAmount } from "@/lib/contract";
 
 interface Task {
   id: number;
-  taskProvider: string;
+  title: string;
   description: string;
-  bounty: bigint;
-  deadline: number;
+  bounty: number;
+  deadline: string;
+  providerId: string;
+  category: string;
+  skills: string[];
+  attachments: string[];
   isCompleted: boolean;
   isCancelled: boolean;
-  submissions: {
+  submissions?: {
     freelancer: string;
     submissionLink: string;
     isApproved: boolean;
@@ -37,8 +42,10 @@ const TaskDetails = () => {
 
   const loadTask = async () => {
     try {
+      // Fetch complete task data from backend
       const taskData = await taskApi.getTask(Number(id));
       
+      // Only fetch submissions from blockchain
       const contract = await getContract();
       const submissionsData = await contract.getSubmissions(id);
       
@@ -51,8 +58,6 @@ const TaskDetails = () => {
 
       setTask({
         ...taskData,
-        bounty: BigInt(taskData.bounty),
-        deadline: Math.floor(new Date(taskData.deadline).getTime() / 1000),
         submissions: submissionsData
       });
     } catch (error: any) {
@@ -81,6 +86,7 @@ const TaskDetails = () => {
 
     setIsSubmitting(true);
     try {
+      // Submit work to blockchain
       const contract = await getContract();
       const tx = await contract.submitWork(id, submissionLink);
       await tx.wait();
@@ -105,9 +111,13 @@ const TaskDetails = () => {
 
   const handleApprove = async (freelancerAddress: string) => {
     try {
+      // Approve on blockchain
       const contract = await getContract();
       const tx = await contract.approveSubmission(id, [freelancerAddress]);
       await tx.wait();
+
+      // Update task status in backend
+      await taskApi.completeTask(Number(id));
       
       toast({
         title: "Submission approved",
@@ -126,9 +136,13 @@ const TaskDetails = () => {
 
   const handleCancel = async () => {
     try {
+      // Cancel on blockchain
       const contract = await getContract();
       const tx = await contract.cancelTask(id);
       await tx.wait();
+
+      // Update task status in backend
+      await taskApi.cancelTask(Number(id));
       
       toast({
         title: "Task cancelled",

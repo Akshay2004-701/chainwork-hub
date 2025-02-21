@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -56,22 +57,27 @@ const CreateTask = () => {
 
     setIsSubmitting(true);
     try {
+      // Get the next task ID first
+      const taskId = Number(await ContractService.getCounter()) + 1;
+      
       // Get current wallet address
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       });
       const providerId = accounts[0];
 
-      // First create task on blockchain
+      // Create task on blockchain with minimal data
       const deadline = Math.floor(formData.deadline.getTime() / 1000);
       const tx = await ContractService.createTask(
         formData.title,
         deadline,
         formData.bounty
       );
+      
+      // Wait for transaction confirmation
       await tx.wait();
 
-      // Create task in backend
+      // After successful blockchain transaction, create detailed task in backend
       await taskApi.createTask({
         title: formData.title,
         description: formData.description,
@@ -85,7 +91,7 @@ const CreateTask = () => {
       
       toast({
         title: "Task created successfully",
-        description: "Your task has been posted to both blockchain and backend",
+        description: "Your task has been posted successfully",
       });
       
       navigate("/my-tasks");

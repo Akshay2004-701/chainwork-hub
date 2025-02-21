@@ -1,4 +1,4 @@
-import Logo from "../assets/Logo.png"
+import Logo from "../assets/vector.svg"
 import { Button } from '@/components/ui/button';
 import { Plus, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';

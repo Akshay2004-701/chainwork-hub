@@ -29,11 +29,6 @@ export class ContractService {
     return await contract.getTask(id);
   }
 
-  static async getCounter() {
-    const contract = await getContract();
-    return await contract.getCounter();
-  }
-
   static async getSubmissions(taskId: number) {
     const contract = await getContract();
     return await contract.getSubmissions(taskId);

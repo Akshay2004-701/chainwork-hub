@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -37,8 +36,9 @@ const TaskDetails = () => {
 
   const loadTask = async () => {
     try {
+      const taskData = await taskApi.getTask(Number(id));
+      
       const contract = await getContract();
-      const taskData = await contract.getTask(id);
       const submissionsData = await contract.getSubmissions(id);
       
       const accounts = await window.ethereum.request({
@@ -46,16 +46,12 @@ const TaskDetails = () => {
       });
       const currentAccount = accounts[0];
       setUserAddress(currentAccount);
-      setIsProvider(currentAccount.toLowerCase() === taskData[1].toLowerCase());
+      setIsProvider(currentAccount.toLowerCase() === taskData.providerId.toLowerCase());
 
       setTask({
-        id: Number(taskData[0]),
-        taskProvider: taskData[1],
-        description: taskData[2],
-        bounty: taskData[3],
-        deadline: Number(taskData[7]),
-        isCompleted: taskData[4],
-        isCancelled: taskData[5],
+        ...taskData,
+        bounty: BigInt(taskData.bounty),
+        deadline: Math.floor(new Date(taskData.deadline).getTime() / 1000),
         submissions: submissionsData
       });
     } catch (error: any) {

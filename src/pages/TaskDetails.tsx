@@ -86,9 +86,8 @@ const TaskDetails = () => {
 
     setIsSubmitting(true);
     try {
-      // Submit work to blockchain
       const contract = await getContract();
-      const tx = await contract.submitWork(id, submissionLink);
+      const tx = await contract.submitWork(Number(id), submissionLink);
       await tx.wait();
       
       toast({
@@ -111,13 +110,14 @@ const TaskDetails = () => {
 
   const handleApprove = async (freelancerAddress: string) => {
     try {
-      // Approve on blockchain
+      // Approve on blockchain with proper type conversion
       const contract = await getContract();
-      const tx = await contract.approveSubmission(id, [freelancerAddress]);
+      const taskId = Number(id);
+      const tx = await contract.approveSubmission(taskId, [freelancerAddress]);
       await tx.wait();
 
       // Update task status in backend
-      await taskApi.completeTask(Number(id));
+      await taskApi.completeTask(taskId);
       
       toast({
         title: "Submission approved",

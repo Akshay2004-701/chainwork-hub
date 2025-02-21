@@ -43,9 +43,12 @@ const AvailableTasks = () => {
               <TaskCard
                 key={task.id}
                 id={task.id}
+                title={task.title}
                 description={task.description}
-                bounty={BigInt(task.bounty)}
-                deadline={Math.floor(new Date(task.deadline).getTime() / 1000)}
+                bounty={task.bounty}
+                deadline={task.deadline}
+                category={task.category}
+                skills={task.skills}
                 isCompleted={task.isCompleted}
                 isCancelled={task.isCancelled}
               />

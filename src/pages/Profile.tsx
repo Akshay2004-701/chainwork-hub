@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,18 +8,23 @@ import { TaskCard } from "@/components/TaskCard";
 
 interface Task {
   id: number;
+  title: string;
   description: string;
-  bounty: bigint;
-  deadline: number;
+  bounty: number;
+  deadline: string;
+  providerId: string;
+  category: string;
+  skills: string[];
   isCompleted: boolean;
   isCancelled: boolean;
+  selectedFreelancers: string[];
 }
 
 const Profile = () => {
   const [address, setAddress] = useState<string>("");
   const [postedTasks, setPostedTasks] = useState<Task[]>([]);
   const [completedSubmissions, setCompletedSubmissions] = useState<Task[]>([]);
-  const [totalEarnings, setTotalEarnings] = useState<bigint>(BigInt(0));
+  const [totalEarnings, setTotalEarnings] = useState<number>(0);
   const [tasksPosted, setTasksPosted] = useState(0);
   const [successRate, setSuccessRate] = useState(0);
 
@@ -47,30 +51,17 @@ const Profile = () => {
       const taskPromises = [];
 
       for (let i = 1; i <= counter; i++) {
-        taskPromises.push(contract.getTask(i));
+        taskPromises.push(taskApi.getTask(i));
       }
 
       const tasksData = await Promise.all(taskPromises);
-      const formattedTasks = tasksData
-        .map(task => ({
-          id: Number(task[0]),
-          taskProvider: task[1],
-          description: task[2],
-          bounty: task[3],
-          isCompleted: task[4],
-          isCancelled: task[5],
-          selectedFreelancers: task[6],
-          deadline: Number(task[7])
-        }))
-        .filter(task => task.id > 0);
-
-      const posted = formattedTasks.filter(
-        task => task.taskProvider.toLowerCase() === userAddress.toLowerCase()
+      const posted = tasksData.filter(
+        task => task.providerId.toLowerCase() === userAddress.toLowerCase()
       );
       setPostedTasks(posted);
       setTasksPosted(posted.length);
 
-      const completed = formattedTasks.filter(
+      const completed = tasksData.filter(
         task => task.selectedFreelancers.some(
           freelancer => freelancer.toLowerCase() === userAddress.toLowerCase()
         )
@@ -78,8 +69,8 @@ const Profile = () => {
       setCompletedSubmissions(completed);
 
       const earnings = completed.reduce(
-        (acc, task) => acc + (task.bounty / BigInt(task.selectedFreelancers.length)),
-        BigInt(0)
+        (acc, task) => acc + (task.bounty / task.selectedFreelancers.length),
+        0
       );
       setTotalEarnings(earnings);
 
@@ -133,6 +124,7 @@ const Profile = () => {
                 <TaskCard
                   key={task.id}
                   id={task.id}
+                  title={task.title}
                   description={task.description}
                   bounty={task.bounty}
                   deadline={task.deadline}
@@ -149,6 +141,7 @@ const Profile = () => {
                 <TaskCard
                   key={task.id}
                   id={task.id}
+                  title={task.title}
                   description={task.description}
                   bounty={task.bounty}
                   deadline={task.deadline}

@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, DollarSign, User } from "lucide-react";
-import { formatDate, formatAmount } from "@/lib/contract";
+import { formatDate } from "@/lib/contract";
 import { Link } from "react-router-dom";
 
 interface TaskCardProps {

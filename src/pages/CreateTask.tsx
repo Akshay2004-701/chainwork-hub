@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -72,12 +71,8 @@ const CreateTask = () => {
       );
       await tx.wait();
 
-      // Get task ID from contract
-      const taskId = Number(await ContractService.getCounter());
-
       // Create task in backend
       await taskApi.createTask({
-        id: taskId,
         title: formData.title,
         description: formData.description,
         bounty: Number(formData.bounty),
@@ -85,9 +80,7 @@ const CreateTask = () => {
         providerId: providerId,
         category: formData.category,
         skills: formData.skills.split(',').map(skill => skill.trim()),
-        attachments: [],
-        isCompleted: false,
-        isCancelled: false
+        attachments: []
       });
       
       toast({

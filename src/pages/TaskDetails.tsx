@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -121,7 +122,9 @@ const TaskDetails = () => {
       await tx.wait();
 
       // Update task status in backend
-      await taskApi.completeTask(Number(id));
+      // Convert id from string to number for backend API
+      const numericId = parseInt(id);
+      await taskApi.completeTask(numericId);
       
       toast({
         title: "Submission approved",
@@ -149,7 +152,9 @@ const TaskDetails = () => {
       await tx.wait();
 
       // Update task status in backend
-      await taskApi.cancelTask(Number(id));
+      // Convert id from string to number for backend API
+      const numericId = parseInt(id);
+      await taskApi.cancelTask(numericId);
       
       toast({
         title: "Task cancelled",

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -5,6 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getContract } from "@/lib/contract";
 import { formatAmount } from "@/lib/contract";
 import { TaskCard } from "@/components/TaskCard";
+import { taskApi } from "@/lib/api";
+import { ethers } from "ethers";
 
 interface Task {
   id: number;
@@ -98,7 +101,7 @@ const Profile = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 bg-primary/10 rounded-lg">
                 <h3 className="text-sm font-medium text-muted-foreground">Total Earnings</h3>
-                <p className="text-2xl font-bold">{formatAmount(totalEarnings)} ETN</p>
+                <p className="text-2xl font-bold">{formatAmount(BigInt(totalEarnings))} ETN</p>
               </div>
               <div className="p-4 bg-primary/10 rounded-lg">
                 <h3 className="text-sm font-medium text-muted-foreground">Tasks Posted</h3>
@@ -128,6 +131,8 @@ const Profile = () => {
                   description={task.description}
                   bounty={task.bounty}
                   deadline={task.deadline}
+                  category={task.category}
+                  skills={task.skills}
                   isCompleted={task.isCompleted}
                   isCancelled={task.isCancelled}
                 />
@@ -145,6 +150,8 @@ const Profile = () => {
                   description={task.description}
                   bounty={task.bounty}
                   deadline={task.deadline}
+                  category={task.category}
+                  skills={task.skills}
                   isCompleted={task.isCompleted}
                   isCancelled={task.isCancelled}
                 />

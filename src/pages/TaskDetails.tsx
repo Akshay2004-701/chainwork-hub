@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clock, DollarSign, AlertCircle, Send } from "lucide-react";
 import { formatDate, formatAmount } from "@/lib/contract";
+import { ethers } from "ethers";
 
 interface Task {
   id: number;
@@ -87,7 +88,8 @@ const TaskDetails = () => {
     setIsSubmitting(true);
     try {
       const contract = await getContract();
-      const tx = await contract.submitWork(Number(id), submissionLink);
+      const taskId = BigInt(id as string);
+      const tx = await contract.submitWork(taskId, submissionLink);
       await tx.wait();
       
       toast({
@@ -110,14 +112,13 @@ const TaskDetails = () => {
 
   const handleApprove = async (freelancerAddress: string) => {
     try {
-      // Approve on blockchain with proper type conversion
       const contract = await getContract();
-      const taskId = Number(id);
+      const taskId = BigInt(id as string);
       const tx = await contract.approveSubmission(taskId, [freelancerAddress]);
       await tx.wait();
 
-      // Update task status in backend
-      await taskApi.completeTask(taskId);
+      // Update task status in backend with number type
+      await taskApi.completeTask(Number(id));
       
       toast({
         title: "Submission approved",

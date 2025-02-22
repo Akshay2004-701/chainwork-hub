@@ -1,5 +1,5 @@
 
-import { getContract, switchToElectroneum } from './contract';
+import { getContract, switchToSonicChain } from './contract';
 import { ethers } from 'ethers';
 
 export class ContractService {

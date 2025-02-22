@@ -18,20 +18,29 @@ const ABI = [
 ];
 
 export const getContract = async () => {
-  if (!window.ethereum) throw new Error("No crypto wallet found");
+  if (!window.ethereum) throw new Error("No crypto wallet found. Please install MetaMask.");
 
-  await window.ethereum.request({
-    method: 'eth_requestAccounts'
-  });
+  try {
+    await switchToSonicChain();
+    
+    await window.ethereum.request({
+      method: 'eth_requestAccounts'
+    });
 
-  const provider = new ethers.BrowserProvider(window.ethereum);
-  const signer = await provider.getSigner();
-  const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-  return contract;
+    return contract;
+  } catch (error: any) {
+    console.error("Error getting contract:", error);
+    throw new Error(error.message || "Failed to connect to the network");
+  }
 };
 
 export const switchToSonicChain = async () => {
+  if (!window.ethereum) throw new Error("No crypto wallet found");
+
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
@@ -39,22 +48,30 @@ export const switchToSonicChain = async () => {
     });
   } catch (error: any) {
     if (error.code === 4902) {
-      await window.ethereum.request({
-        method: 'wallet_addEthereumChain',
-        params: [
-          {
-            chainId: `0x${CHAIN_ID.toString(16)}`,
-            chainName: 'Sonic Blaze Testnet',
-            nativeCurrency: {
-              name: 'SONIC',
-              symbol: 'SONIC',
-              decimals: 18,
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: `0x${CHAIN_ID.toString(16)}`,
+              chainName: 'Sonic Blaze Testnet',
+              nativeCurrency: {
+                name: 'SONIC',
+                symbol: 'SONIC',
+                decimals: 18,
+              },
+              rpcUrls: ['https://testnet.sonicchain.com/rpc'],
+              blockExplorerUrls: ['https://testnet-explorer.sonicchain.com'],
             },
-            rpcUrls: ['https://testnet.sonicchain.com/rpc'],
-            blockExplorerUrls: ['https://testnet-explorer.sonicchain.com'],
-          },
-        ],
-      });
+          ],
+        });
+      } catch (addError: any) {
+        console.error("Error adding Sonic Chain:", addError);
+        throw new Error("Failed to add Sonic Chain network to MetaMask");
+      }
+    } else {
+      console.error("Error switching to Sonic Chain:", error);
+      throw new Error("Failed to switch to Sonic Chain network");
     }
   }
 };

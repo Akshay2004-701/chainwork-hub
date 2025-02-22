@@ -1,8 +1,8 @@
 
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = '0xBe6d390F58031329aD59F75df1E1359DAa4cA8a1';
-const CHAIN_ID = 5201420;
+const CONTRACT_ADDRESS = '0x398f4e01c4D56962a41A5bB242bC1479a646ab6D';
+const CHAIN_ID = 57054;
 
 const ABI = [
   "function createTask(string memory _description, uint256 _deadline) external payable",
@@ -31,7 +31,7 @@ export const getContract = async () => {
   return contract;
 };
 
-export const switchToElectroneum = async () => {
+export const switchToSonicChain = async () => {
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
@@ -44,14 +44,14 @@ export const switchToElectroneum = async () => {
         params: [
           {
             chainId: `0x${CHAIN_ID.toString(16)}`,
-            chainName: 'Electroneum Testnet',
+            chainName: 'Sonic Blaze Testnet',
             nativeCurrency: {
-              name: 'ETN',
-              symbol: 'ETN',
+              name: 'SONIC',
+              symbol: 'SONIC',
               decimals: 18,
             },
-            rpcUrls: ['https://testnet-rpc.electroneum.com'],
-            blockExplorerUrls: ['https://testnet-explorer.electroneum.com'],
+            rpcUrls: ['https://testnet.sonicchain.com/rpc'],
+            blockExplorerUrls: ['https://testnet-explorer.sonicchain.com'],
           },
         ],
       });

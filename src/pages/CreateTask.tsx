@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { getContract } from "@/lib/contract";
+import { ContractService } from "@/lib/contractService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { ethers } from "ethers";
 
 interface TaskFormData {
   title: string;
@@ -22,10 +21,8 @@ interface TaskFormData {
   bounty: string;
   deadline: Date | undefined;
   category: string;
-  difficulty: string;
-  estimatedDuration: string;
-  tags: string;
-  requirements: string;
+  skills: string;
+  attachments: string[];
 }
 
 const CreateTask = () => {
@@ -35,10 +32,8 @@ const CreateTask = () => {
     bounty: "",
     deadline: undefined,
     category: "",
-    difficulty: "",
-    estimatedDuration: "",
-    tags: "",
-    requirements: ""
+    skills: "",
+    attachments: []
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -58,20 +53,22 @@ const CreateTask = () => {
 
     setIsSubmitting(true);
     try {
-      const contract = await getContract();
       const deadline = Math.floor(formData.deadline.getTime() / 1000);
-      const bountyInWei = ethers.parseEther(formData.bounty);
+      const skills = formData.skills.split(',').map(skill => skill.trim()).filter(Boolean);
       
-      // Only pass title, bounty, and deadline to the contract
-      const tx = await contract.createTask(formData.title, deadline, {
-        value: bountyInWei,
-      });
-      
-      await tx.wait();
+      await ContractService.createTask(
+        formData.title,
+        formData.description,
+        deadline,
+        formData.bounty,
+        formData.category,
+        skills,
+        formData.attachments
+      );
       
       toast({
         title: "Task created successfully",
-        description: "Your task has been posted to the blockchain",
+        description: "Your task has been posted to the blockchain and database",
       });
       
       navigate("/my-tasks");
@@ -86,7 +83,7 @@ const CreateTask = () => {
     }
   };
 
-  const handleInputChange = (field: keyof TaskFormData, value: string | Date | undefined) => {
+  const handleInputChange = (field: keyof TaskFormData, value: string | Date | undefined | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -98,9 +95,7 @@ const CreateTask = () => {
       <Card>
         <CardHeader>
           <CardTitle>Post a New Task</CardTitle>
-          <CardDescription>
-            Create a new task and set a bounty for freelancers
-          </CardDescription>
+          <CardDescription>Create a new task and set a bounty for freelancers</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -181,46 +176,12 @@ const CreateTask = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Difficulty</Label>
-              <Select onValueChange={(value) => handleInputChange("difficulty", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select difficulty" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="estimatedDuration">Estimated Duration</Label>
+              <Label htmlFor="skills">Skills (comma-separated)</Label>
               <Input
-                id="estimatedDuration"
-                placeholder="e.g., 2 weeks"
-                value={formData.estimatedDuration}
-                onChange={(e) => handleInputChange("estimatedDuration", e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="tags">Tags</Label>
-              <Input
-                id="tags"
+                id="skills"
                 placeholder="e.g., React, TypeScript, UI/UX"
-                value={formData.tags}
-                onChange={(e) => handleInputChange("tags", e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="requirements">Requirements</Label>
-              <Textarea
-                id="requirements"
-                placeholder="List any specific requirements or qualifications needed..."
-                value={formData.requirements}
-                onChange={(e) => handleInputChange("requirements", e.target.value)}
+                value={formData.skills}
+                onChange={(e) => handleInputChange("skills", e.target.value)}
               />
             </div>
             

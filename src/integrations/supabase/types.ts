@@ -9,7 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      Task: {
+        Row: {
+          attachments: string | null
+          bounty: number | null
+          category: string | null
+          createdAt: string | null
+          deadline: string | null
+          description: string | null
+          id: number | null
+          isCancelled: boolean | null
+          isCompleted: boolean | null
+          providerId: string | null
+          skills: string | null
+          title: string | null
+        }
+        Insert: {
+          attachments?: string | null
+          bounty?: number | null
+          category?: string | null
+          createdAt?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: number | null
+          isCancelled?: boolean | null
+          isCompleted?: boolean | null
+          providerId?: string | null
+          skills?: string | null
+          title?: string | null
+        }
+        Update: {
+          attachments?: string | null
+          bounty?: number | null
+          category?: string | null
+          createdAt?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: number | null
+          isCancelled?: boolean | null
+          isCompleted?: boolean | null
+          providerId?: string | null
+          skills?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

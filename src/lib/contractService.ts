@@ -15,8 +15,10 @@ export class ContractService {
     const receipt = await tx.wait();
     
     // Get provider's address - fixed the signer type issue
-    const signer = contract.runner;
-    const provider = await signer.getAddress();
+    const accounts = await window.ethereum.request({
+      method: 'eth_accounts'
+    });
+    const provider = accounts[0];
     
     // After successful blockchain transaction, store in MongoDB
     const task = {

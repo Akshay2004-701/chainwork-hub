@@ -15,7 +15,7 @@ export class ContractService {
     const receipt = await tx.wait();
     
     // Get provider's address - fixed the signer type issue
-    const signer = await contract.runner.getSigner();
+    const signer = contract.runner;
     const provider = await signer.getAddress();
     
     // After successful blockchain transaction, store in MongoDB

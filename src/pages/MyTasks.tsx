@@ -2,31 +2,67 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { getContract } from "@/lib/contract";
-import { api, Task as ApiTask } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, DollarSign, AlertCircle } from "lucide-react";
-import { formatDate } from "@/lib/contract";
+import { formatDate, formatAmount } from "@/lib/contract";
+import { ethers } from "ethers";
+
+interface Task {
+  id: number;
+  taskProvider: string;
+  description: string;
+  bounty: bigint;
+  deadline: number;
+  isCompleted: boolean;
+  isCancelled: boolean;
+  submissions: {
+    freelancer: string;
+    submissionLink: string;
+    isApproved: boolean;
+  }[];
+}
 
 const MyTasks = () => {
-  const [tasks, setTasks] = useState<ApiTask[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const loadTasks = async () => {
     try {
+      const contract = await getContract();
+      const counter = await contract.getCounter();
+      const taskPromises = [];
+      const submissionPromises = [];
+
+      for (let i = 1; i <= counter; i++) {
+        taskPromises.push(contract.getTask(i));
+        submissionPromises.push(contract.getSubmissions(i));
+      }
+
+      const tasksData = await Promise.all(taskPromises);
+      const submissionsData = await Promise.all(submissionPromises);
+
       const currentAccount = await window.ethereum.request({
         method: 'eth_accounts'
       });
 
-      const allTasks = await api.getAllTasks();
-      const userTasks = allTasks.filter(
-        task => task.providerId.toLowerCase() === currentAccount[0]?.toLowerCase()
-      );
+      const formattedTasks = tasksData
+        .map((task, index) => ({
+          id: Number(task[0]),
+          taskProvider: task[1],
+          description: task[2],
+          bounty: task[3],
+          deadline: Number(task[7]),
+          isCompleted: task[4],
+          isCancelled: task[5],
+          submissions: submissionsData[index]
+        }))
+        .filter(task => task.id > 0 && currentAccount[0]?.toLowerCase() === task.taskProvider.toLowerCase());
 
-      setTasks(userTasks);
+      setTasks(formattedTasks);
     } catch (error: any) {
       console.error("Error loading tasks:", error);
       toast({
@@ -45,18 +81,9 @@ const MyTasks = () => {
 
   const handleApproveSubmission = async (taskId: number, freelancerAddress: string) => {
     try {
-      // First approve on blockchain
       const contract = await getContract();
       const tx = await contract.approveSubmission(taskId, [freelancerAddress]);
       await tx.wait();
-      
-      // Then update in backend
-      const submissions = await api.getSubmissionsByTaskId(taskId);
-      const submission = submissions.find(s => s.freelancer.toLowerCase() === freelancerAddress.toLowerCase());
-      
-      if (submission) {
-        await api.approveSubmission(submission.subId);
-      }
       
       toast({
         title: "Submission approved",
@@ -75,13 +102,9 @@ const MyTasks = () => {
 
   const handleCancelTask = async (taskId: number) => {
     try {
-      // First cancel on blockchain
       const contract = await getContract();
       const tx = await contract.cancelTask(taskId);
       await tx.wait();
-      
-      // Then update in backend
-      await api.cancelTask(taskId);
       
       toast({
         title: "Task cancelled",
@@ -166,11 +189,11 @@ const TaskCard = ({
   onApprove, 
   onCancel 
 }: { 
-  task: ApiTask; 
+  task: Task; 
   onApprove: (taskId: number, freelancer: string) => Promise<void>;
   onCancel: (taskId: number) => Promise<void>;
 }) => {
-  const isExpired = new Date() > new Date(task.deadline);
+  const isExpired = Date.now() > task.deadline * 1000;
   
   return (
     <Card>
@@ -178,21 +201,7 @@ const TaskCard = ({
         <div className="flex justify-between items-start">
           <div>
             <CardTitle>Task #{task.id}</CardTitle>
-            <CardDescription className="mt-2">
-              <div className="line-clamp-2">{task.description}</div>
-              {task.category && (
-                <div className="mt-2">
-                  <Badge variant="outline">{task.category}</Badge>
-                </div>
-              )}
-              {task.skills.length > 0 && (
-                <div className="mt-2 flex gap-2 flex-wrap">
-                  {task.skills.map((skill, index) => (
-                    <Badge key={index} variant="secondary">{skill}</Badge>
-                  ))}
-                </div>
-              )}
-            </CardDescription>
+            <CardDescription className="mt-2 line-clamp-2">{task.description}</CardDescription>
           </div>
           <Badge variant={task.isCompleted ? "default" : task.isCancelled ? "destructive" : "secondary"}>
             {task.isCompleted ? "Completed" : task.isCancelled ? "Cancelled" : isExpired ? "Expired" : "Active"}
@@ -204,15 +213,41 @@ const TaskCard = ({
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-emerald-500" />
-              <span>{task.bounty} SONIC</span>
+              <span>{formatAmount(task.bounty)} SONIC</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-blue-500" />
-              <span>{formatDate(new Date(task.deadline).getTime() / 1000)}</span>
+              <span>{formatDate(task.deadline)}</span>
             </div>
           </div>
 
-          {!task.isCompleted && !task.isCancelled && (
+          {task.submissions.length > 0 ? (
+            <div className="space-y-4">
+              <h4 className="font-medium">Submissions ({task.submissions.length})</h4>
+              {task.submissions.map((submission, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">{submission.freelancer.slice(0, 6)}...{submission.freelancer.slice(-4)}</p>
+                    <a href={submission.submissionLink} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                      View Submission
+                    </a>
+                  </div>
+                  {!task.isCompleted && !task.isCancelled && (
+                    <Button onClick={() => onApprove(task.id, submission.freelancer)}>
+                      Approve
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <AlertCircle className="w-4 h-4" />
+              <span>No submissions yet</span>
+            </div>
+          )}
+
+          {!task.isCompleted && !task.isCancelled && task.submissions.length === 0 && (
             <Button 
               variant="destructive" 
               onClick={() => onCancel(task.id)}

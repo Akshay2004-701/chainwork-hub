@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getContract } from "@/lib/contract";
-import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
@@ -63,41 +62,16 @@ const CreateTask = () => {
       const deadline = Math.floor(formData.deadline.getTime() / 1000);
       const bountyInWei = ethers.parseEther(formData.bounty);
       
-      // First, create the task on the blockchain
+      // Only pass title, bounty, and deadline to the contract
       const tx = await contract.createTask(formData.title, deadline, {
         value: bountyInWei,
       });
       
       await tx.wait();
-
-      // Get the task ID from the contract
-      const taskId = Number(await contract.getCounter());
-      
-      // Now create the task in the backend
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts'
-      });
-
-      const taskData = {
-        id: taskId,
-        title: formData.title,
-        description: formData.description,
-        bounty: Number(formData.bounty),
-        deadline: formData.deadline,
-        providerId: accounts[0],
-        createdAt: new Date(),
-        category: formData.category,
-        skills: formData.tags.split(',').map(tag => tag.trim()),
-        attachments: [],
-        isCompleted: false,
-        isCancelled: false
-      };
-
-      await api.createTask(taskData);
       
       toast({
         title: "Task created successfully",
-        description: "Your task has been posted",
+        description: "Your task has been posted to the blockchain",
       });
       
       navigate("/my-tasks");
@@ -107,7 +81,6 @@ const CreateTask = () => {
         description: error.message,
         variant: "destructive",
       });
-      console.error("Error creating task:", error);
     } finally {
       setIsSubmitting(false);
     }

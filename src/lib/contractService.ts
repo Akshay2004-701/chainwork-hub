@@ -1,5 +1,5 @@
 
-import { getContract, switchToSonicChain } from './contract';
+import { getContract } from './contract';
 import { ethers } from 'ethers';
 import { taskApi } from './api';
 
@@ -14,8 +14,9 @@ export class ContractService {
     });
     const receipt = await tx.wait();
     
-    // Get provider's address
-    const provider = await contract.signer.getAddress();
+    // Get provider's address - fixed the signer type issue
+    const signer = await contract.runner.getSigner();
+    const provider = await signer.getAddress();
     
     // After successful blockchain transaction, store in MongoDB
     const task = {

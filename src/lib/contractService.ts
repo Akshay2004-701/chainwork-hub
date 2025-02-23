@@ -24,19 +24,19 @@ export class ContractService {
     // After successful blockchain transaction, store in Supabase
     const { error } = await supabase
       .from('Task')
-      .insert({
+      .insert([{
         title,
         description,
         bounty: Number(bountyAmount),
-        deadline: new Date(deadline * 1000),
+        deadline: new Date(deadline * 1000).toISOString(),
         providerId,
         category,
-        skills,
-        attachments,
-        createdAt: new Date(),
+        skills: JSON.stringify(skills),
+        attachments: JSON.stringify(attachments),
+        createdAt: new Date().toISOString(),
         isCompleted: false,
         isCancelled: false
-      });
+      }]);
 
     if (error) throw error;
     return receipt;
@@ -49,10 +49,20 @@ export class ContractService {
       .order('createdAt', { ascending: false });
 
     if (error) throw error;
+    
     return data.map(task => ({
-      ...task,
-      deadline: new Date(task.deadline),
-      createdAt: new Date(task.createdAt)
+      id: Number(task.id),
+      title: task.title || '',
+      description: task.description || '',
+      bounty: Number(task.bounty) || 0,
+      deadline: new Date(task.deadline || ''),
+      providerId: task.providerId || '',
+      createdAt: new Date(task.createdAt || ''),
+      category: task.category || '',
+      skills: task.skills ? JSON.parse(task.skills) : [],
+      attachments: task.attachments ? JSON.parse(task.attachments) : [],
+      isCompleted: Boolean(task.isCompleted),
+      isCancelled: Boolean(task.isCancelled)
     }));
   }
 
@@ -64,10 +74,20 @@ export class ContractService {
       .single();
 
     if (error) throw error;
+    
     return {
-      ...data,
-      deadline: new Date(data.deadline),
-      createdAt: new Date(data.createdAt)
+      id: Number(data.id),
+      title: data.title || '',
+      description: data.description || '',
+      bounty: Number(data.bounty) || 0,
+      deadline: new Date(data.deadline || ''),
+      providerId: data.providerId || '',
+      createdAt: new Date(data.createdAt || ''),
+      category: data.category || '',
+      skills: data.skills ? JSON.parse(data.skills) : [],
+      attachments: data.attachments ? JSON.parse(data.attachments) : [],
+      isCompleted: Boolean(data.isCompleted),
+      isCancelled: Boolean(data.isCancelled)
     };
   }
 

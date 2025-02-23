@@ -40,15 +40,18 @@ const AvailableTasks = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tasks.map((task, index) => (
+            {tasks.map((task) => (
               <TaskCard
-                key={index}
-                id={Number(task[0])}
-                description={task[2]}
-                bounty={task[3]}
-                deadline={Number(task[7])}
-                isCompleted={task[4]}
-                isCancelled={task[5]}
+                key={task.id}
+                id={task.id}
+                title={task.title}
+                description={task.description}
+                bounty={task.bounty}
+                deadline={task.deadline}
+                isCompleted={task.isCompleted}
+                isCancelled={task.isCancelled}
+                skills={task.skills}
+                category={task.category}
               />
             ))}
           </div>

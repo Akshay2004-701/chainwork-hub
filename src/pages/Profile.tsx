@@ -10,8 +10,8 @@ import { TaskCard } from "@/components/TaskCard";
 interface Task {
   id: number;
   description: string;
-  bounty: bigint;
-  deadline: number;
+  bounty: number;
+  deadline: Date;
   isCompleted: boolean;
   isCancelled: boolean;
 }
@@ -56,11 +56,11 @@ const Profile = () => {
           id: Number(task[0]),
           taskProvider: task[1],
           description: task[2],
-          bounty: task[3],
+          bounty: Number(task[3]), // Convert bigint to number
           isCompleted: task[4],
           isCancelled: task[5],
           selectedFreelancers: task[6],
-          deadline: Number(task[7])
+          deadline: new Date(Number(task[7]) * 1000) // Convert number to Date
         }))
         .filter(task => task.id > 0);
 
@@ -78,8 +78,8 @@ const Profile = () => {
       setCompletedSubmissions(completed);
 
       const earnings = completed.reduce(
-        (acc, task) => acc + (task.bounty / BigInt(task.selectedFreelancers.length)),
-        BigInt(0)
+        (acc, task) => acc + (Number(task.bounty) / task.selectedFreelancers.length),
+        0
       );
       setTotalEarnings(earnings);
 

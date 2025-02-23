@@ -61,7 +61,7 @@ const CreateTask = () => {
         formData.description,
         deadline,
         formData.bounty,
-        formData.category,
+        formData.category || 'general',
         skills,
         formData.attachments
       );
@@ -73,6 +73,7 @@ const CreateTask = () => {
       
       navigate("/my-tasks");
     } catch (error: any) {
+      console.error('Task creation error:', error);
       toast({
         title: "Failed to create task",
         description: error.message,

@@ -1,32 +1,46 @@
 
 import { getContract, switchToSonicChain } from './contract';
 import { ethers } from 'ethers';
+import { taskApi } from './api';
 
 export class ContractService {
-  static async createTask(title: string, deadline: number, bountyAmount: string) {
+  static async createTask(title: string, description: string, deadline: number, bountyAmount: string, category: string, skills: string[], attachments: string[]) {
     const contract = await getContract();
     const bountyInWei = ethers.parseEther(bountyAmount);
+    
+    // Create task on blockchain
     const tx = await contract.createTask(title, deadline, {
       value: bountyInWei,
     });
-    return await tx.wait();
+    const receipt = await tx.wait();
+    
+    // Get provider's address
+    const provider = await contract.signer.getAddress();
+    
+    // After successful blockchain transaction, store in MongoDB
+    const task = {
+      title,
+      description,
+      bounty: Number(bountyAmount),
+      deadline: new Date(deadline * 1000),
+      providerId: provider,
+      category,
+      skills,
+      attachments
+    };
+    
+    await taskApi.createTask(task);
+    return receipt;
   }
 
   static async getAllTasks() {
-    const contract = await getContract();
-    const counter = await contract.getCounter();
-    const taskPromises = [];
-
-    for (let i = 1; i <= counter; i++) {
-      taskPromises.push(contract.getTask(i));
-    }
-
-    return await Promise.all(taskPromises);
+    // Fetch tasks from MongoDB instead of blockchain
+    return await taskApi.getAllTasks();
   }
 
   static async getTask(id: number) {
-    const contract = await getContract();
-    return await contract.getTask(id);
+    // Fetch specific task from MongoDB
+    return await taskApi.getTask(id);
   }
 
   static async getSubmissions(taskId: number) {
@@ -43,12 +57,22 @@ export class ContractService {
   static async approveSubmission(taskId: number, freelancerAddress: string) {
     const contract = await getContract();
     const tx = await contract.approveSubmission(taskId, [freelancerAddress]);
-    return await tx.wait();
+    
+    // Update task status in MongoDB after successful blockchain transaction
+    await tx.wait();
+    await taskApi.completeTask(taskId);
+    
+    return tx;
   }
 
   static async cancelTask(taskId: number) {
     const contract = await getContract();
     const tx = await contract.cancelTask(taskId);
-    return await tx.wait();
+    
+    // Update task status in MongoDB after successful blockchain transaction
+    await tx.wait();
+    await taskApi.cancelTask(taskId);
+    
+    return tx;
   }
 }

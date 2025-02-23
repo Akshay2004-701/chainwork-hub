@@ -1,7 +1,7 @@
 
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8081';
+const BASE_URL = '/api'; // This will be proxied through Vite's development server
 
 export interface Task {
   id: number;

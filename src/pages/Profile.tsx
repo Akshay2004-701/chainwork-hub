@@ -9,9 +9,12 @@ import { TaskCard } from "@/components/TaskCard";
 
 interface Task {
   id: number;
+  title: string;
   description: string;
   bounty: number;
   deadline: Date;
+  category: string;
+  skills: string[];
   isCompleted: boolean;
   isCancelled: boolean;
 }
@@ -20,7 +23,7 @@ const Profile = () => {
   const [address, setAddress] = useState<string>("");
   const [postedTasks, setPostedTasks] = useState<Task[]>([]);
   const [completedSubmissions, setCompletedSubmissions] = useState<Task[]>([]);
-  const [totalEarnings, setTotalEarnings] = useState<bigint>(BigInt(0));
+  const [totalEarnings, setTotalEarnings] = useState<number>(0); // Changed from bigint to number
   const [tasksPosted, setTasksPosted] = useState(0);
   const [successRate, setSuccessRate] = useState(0);
 
@@ -54,13 +57,16 @@ const Profile = () => {
       const formattedTasks = tasksData
         .map(task => ({
           id: Number(task[0]),
-          taskProvider: task[1],
+          title: task[2], // Assuming title is stored in description field for blockchain tasks
           description: task[2],
-          bounty: Number(task[3]), // Convert bigint to number
+          bounty: Number(task[3]),
+          deadline: new Date(Number(task[7]) * 1000),
+          category: 'general', // Default category for blockchain tasks
+          skills: [], // Default empty skills for blockchain tasks
           isCompleted: task[4],
           isCancelled: task[5],
+          taskProvider: task[1],
           selectedFreelancers: task[6],
-          deadline: new Date(Number(task[7]) * 1000) // Convert number to Date
         }))
         .filter(task => task.id > 0);
 
@@ -78,7 +84,7 @@ const Profile = () => {
       setCompletedSubmissions(completed);
 
       const earnings = completed.reduce(
-        (acc, task) => acc + (Number(task.bounty) / task.selectedFreelancers.length),
+        (acc, task) => acc + (task.bounty / task.selectedFreelancers.length),
         0
       );
       setTotalEarnings(earnings);
@@ -107,7 +113,7 @@ const Profile = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 bg-primary/10 rounded-lg">
                 <h3 className="text-sm font-medium text-muted-foreground">Total Earnings</h3>
-                <p className="text-2xl font-bold">{formatAmount(totalEarnings)} ETN</p>
+                <p className="text-2xl font-bold">{totalEarnings.toFixed(2)} ETN</p>
               </div>
               <div className="p-4 bg-primary/10 rounded-lg">
                 <h3 className="text-sm font-medium text-muted-foreground">Tasks Posted</h3>
@@ -133,11 +139,14 @@ const Profile = () => {
                 <TaskCard
                   key={task.id}
                   id={task.id}
+                  title={task.title}
                   description={task.description}
                   bounty={task.bounty}
                   deadline={task.deadline}
                   isCompleted={task.isCompleted}
                   isCancelled={task.isCancelled}
+                  category={task.category}
+                  skills={task.skills}
                 />
               ))}
             </div>
@@ -149,11 +158,14 @@ const Profile = () => {
                 <TaskCard
                   key={task.id}
                   id={task.id}
+                  title={task.title}
                   description={task.description}
                   bounty={task.bounty}
                   deadline={task.deadline}
                   isCompleted={task.isCompleted}
                   isCancelled={task.isCancelled}
+                  category={task.category}
+                  skills={task.skills}
                 />
               ))}
             </div>

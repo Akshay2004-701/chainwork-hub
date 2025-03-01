@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { ContractService } from "@/lib/contractService";
+import { taskApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
@@ -13,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 
 interface TaskFormData {
   title: string;
@@ -21,8 +22,10 @@ interface TaskFormData {
   bounty: string;
   deadline: Date | undefined;
   category: string;
+  difficulty: string;
+  estimatedDuration: string;
   skills: string;
-  attachments: string[];
+  requirements: string;
 }
 
 const CreateTask = () => {
@@ -32,11 +35,12 @@ const CreateTask = () => {
     bounty: "",
     deadline: undefined,
     category: "",
+    difficulty: "",
+    estimatedDuration: "",
     skills: "",
-    attachments: []
+    requirements: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -53,27 +57,45 @@ const CreateTask = () => {
 
     setIsSubmitting(true);
     try {
-      const deadline = Math.floor(formData.deadline.getTime() / 1000);
-      const skills = formData.skills.split(',').map(skill => skill.trim()).filter(Boolean);
+      // Get the next task ID first
+      const taskId = Number(await ContractService.getCounter()) + 1;
       
-      await ContractService.createTask(
+      // Get current wallet address
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts'
+      });
+      const providerId = accounts[0];
+
+      // Create task on blockchain with minimal data
+      const deadline = Math.floor(formData.deadline.getTime() / 1000);
+      const tx = await ContractService.createTask(
         formData.title,
-        formData.description,
         deadline,
-        formData.bounty,
-        formData.category || 'general',
-        skills,
-        formData.attachments
+        formData.bounty
       );
+      
+      // Wait for transaction confirmation
+      await tx.wait();
+
+      // After successful blockchain transaction, create detailed task in backend
+      await taskApi.createTask({
+        title: formData.title,
+        description: formData.description,
+        bounty: Number(formData.bounty),
+        deadline: formData.deadline.toISOString(),
+        providerId: providerId,
+        category: formData.category,
+        skills: formData.skills.split(',').map(skill => skill.trim()),
+        attachments: []
+      });
       
       toast({
         title: "Task created successfully",
-        description: "Your task has been posted to the blockchain and database",
+        description: "Your task has been posted successfully",
       });
       
       navigate("/my-tasks");
     } catch (error: any) {
-      console.error('Task creation error:', error);
       toast({
         title: "Failed to create task",
         description: error.message,
@@ -84,7 +106,7 @@ const CreateTask = () => {
     }
   };
 
-  const handleInputChange = (field: keyof TaskFormData, value: string | Date | undefined | string[]) => {
+  const handleInputChange = (field: keyof TaskFormData, value: string | Date | undefined) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -96,7 +118,9 @@ const CreateTask = () => {
       <Card>
         <CardHeader>
           <CardTitle>Post a New Task</CardTitle>
-          <CardDescription>Create a new task and set a bounty for freelancers</CardDescription>
+          <CardDescription>
+            Create a new task and set a bounty for freelancers
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -177,12 +201,47 @@ const CreateTask = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="skills">Skills (comma-separated)</Label>
+              <Label>Difficulty</Label>
+              <Select onValueChange={(value) => handleInputChange("difficulty", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="estimatedDuration">Estimated Duration</Label>
+              <Input
+                id="estimatedDuration"
+                placeholder="e.g., 2 weeks"
+                value={formData.estimatedDuration}
+                onChange={(e) => handleInputChange("estimatedDuration", e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="skills">Required Skills</Label>
               <Input
                 id="skills"
                 placeholder="e.g., React, TypeScript, UI/UX"
                 value={formData.skills}
                 onChange={(e) => handleInputChange("skills", e.target.value)}
+              />
+              <p className="text-sm text-muted-foreground">Separate skills with commas</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="requirements">Additional Requirements</Label>
+              <Textarea
+                id="requirements"
+                placeholder="List any specific requirements or qualifications needed..."
+                value={formData.requirements}
+                onChange={(e) => handleInputChange("requirements", e.target.value)}
               />
             </div>
             
@@ -191,7 +250,14 @@ const CreateTask = () => {
               className="w-full"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creating..." : "Create Task"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating Task...
+                </>
+              ) : (
+                "Create Task"
+              )}
             </Button>
           </form>
         </CardContent>

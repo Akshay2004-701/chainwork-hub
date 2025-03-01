@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { ContractService } from "@/lib/contractService";
-import { taskApi } from "@/lib/api";
+import { getContract } from "@/lib/contract";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
@@ -14,7 +13,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
+import { ethers } from "ethers";
 
 interface TaskFormData {
   title: string;
@@ -24,7 +24,7 @@ interface TaskFormData {
   category: string;
   difficulty: string;
   estimatedDuration: string;
-  skills: string;
+  tags: string;
   requirements: string;
 }
 
@@ -37,10 +37,11 @@ const CreateTask = () => {
     category: "",
     difficulty: "",
     estimatedDuration: "",
-    skills: "",
+    tags: "",
     requirements: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -57,41 +58,20 @@ const CreateTask = () => {
 
     setIsSubmitting(true);
     try {
-      // Get the next task ID first
-      const taskId = Number(await ContractService.getCounter()) + 1;
-      
-      // Get current wallet address
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts'
-      });
-      const providerId = accounts[0];
-
-      // Create task on blockchain with minimal data
+      const contract = await getContract();
       const deadline = Math.floor(formData.deadline.getTime() / 1000);
-      const tx = await ContractService.createTask(
-        formData.title,
-        deadline,
-        formData.bounty
-      );
+      const bountyInWei = ethers.parseEther(formData.bounty);
       
-      // Wait for transaction confirmation
-      await tx.wait();
-
-      // After successful blockchain transaction, create detailed task in backend
-      await taskApi.createTask({
-        title: formData.title,
-        description: formData.description,
-        bounty: Number(formData.bounty),
-        deadline: formData.deadline.toISOString(),
-        providerId: providerId,
-        category: formData.category,
-        skills: formData.skills.split(',').map(skill => skill.trim()),
-        attachments: []
+      // Only pass title, bounty, and deadline to the contract
+      const tx = await contract.createTask(formData.title, deadline, {
+        value: bountyInWei,
       });
+      
+      await tx.wait();
       
       toast({
         title: "Task created successfully",
-        description: "Your task has been posted successfully",
+        description: "Your task has been posted to the blockchain",
       });
       
       navigate("/my-tasks");
@@ -225,18 +205,17 @@ const CreateTask = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="skills">Required Skills</Label>
+              <Label htmlFor="tags">Tags</Label>
               <Input
-                id="skills"
+                id="tags"
                 placeholder="e.g., React, TypeScript, UI/UX"
-                value={formData.skills}
-                onChange={(e) => handleInputChange("skills", e.target.value)}
+                value={formData.tags}
+                onChange={(e) => handleInputChange("tags", e.target.value)}
               />
-              <p className="text-sm text-muted-foreground">Separate skills with commas</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="requirements">Additional Requirements</Label>
+              <Label htmlFor="requirements">Requirements</Label>
               <Textarea
                 id="requirements"
                 placeholder="List any specific requirements or qualifications needed..."
@@ -250,14 +229,7 @@ const CreateTask = () => {
               className="w-full"
               disabled={isSubmitting}
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating Task...
-                </>
-              ) : (
-                "Create Task"
-              )}
+              {isSubmitting ? "Creating..." : "Create Task"}
             </Button>
           </form>
         </CardContent>

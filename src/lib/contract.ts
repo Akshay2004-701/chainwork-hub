@@ -1,8 +1,8 @@
 
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = '0xBe6d390F58031329aD59F75df1E1359DAa4cA8a1';
-const CHAIN_ID = 5201420;
+const CONTRACT_ADDRESS = '0x398f4e01c4D56962a41A5bB242bC1479a646ab6D';
+const CHAIN_ID = 57054;
 
 const ABI = [
   "function createTask(string memory _description, uint256 _deadline) external payable",
@@ -18,20 +18,29 @@ const ABI = [
 ];
 
 export const getContract = async () => {
-  if (!window.ethereum) throw new Error("No crypto wallet found");
+  if (!window.ethereum) throw new Error("No crypto wallet found. Please install MetaMask.");
 
-  await window.ethereum.request({
-    method: 'eth_requestAccounts'
-  });
+  try {
+    await switchToSonicChain();
+    
+    await window.ethereum.request({
+      method: 'eth_requestAccounts'
+    });
 
-  const provider = new ethers.BrowserProvider(window.ethereum);
-  const signer = await provider.getSigner();
-  const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
-  return contract;
+    return contract;
+  } catch (error: any) {
+    console.error("Error getting contract:", error);
+    throw new Error(error.message || "Failed to connect to the network");
+  }
 };
 
-export const switchToElectroneum = async () => {
+export const switchToSonicChain = async () => {
+  if (!window.ethereum) throw new Error("No crypto wallet found");
+
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
@@ -39,22 +48,30 @@ export const switchToElectroneum = async () => {
     });
   } catch (error: any) {
     if (error.code === 4902) {
-      await window.ethereum.request({
-        method: 'wallet_addEthereumChain',
-        params: [
-          {
-            chainId: `0x${CHAIN_ID.toString(16)}`,
-            chainName: 'Electroneum Testnet',
-            nativeCurrency: {
-              name: 'ETN',
-              symbol: 'ETN',
-              decimals: 18,
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: `0x${CHAIN_ID.toString(16)}`,
+              chainName: 'Sonic Blaze Testnet',
+              nativeCurrency: {
+                name: 'SONIC',
+                symbol: 'SONIC',
+                decimals: 18,
+              },
+              rpcUrls: ['https://testnet.sonicchain.com/rpc'],
+              blockExplorerUrls: ['https://testnet-explorer.sonicchain.com'],
             },
-            rpcUrls: ['https://testnet-rpc.electroneum.com'],
-            blockExplorerUrls: ['https://testnet-explorer.electroneum.com'],
-          },
-        ],
-      });
+          ],
+        });
+      } catch (addError: any) {
+        console.error("Error adding Sonic Chain:", addError);
+        throw new Error("Failed to add Sonic Chain network to MetaMask");
+      }
+    } else {
+      console.error("Error switching to Sonic Chain:", error);
+      throw new Error("Failed to switch to Sonic Chain network");
     }
   }
 };

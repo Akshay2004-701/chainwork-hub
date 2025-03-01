@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { getContract } from "@/lib/contract";
-import { taskApi } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,21 +10,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Clock, DollarSign, AlertCircle, Send } from "lucide-react";
 import { formatDate, formatAmount } from "@/lib/contract";
-import { ethers } from "ethers";
 
 interface Task {
   id: number;
-  title: string;
+  taskProvider: string;
   description: string;
-  bounty: number;
-  deadline: string;
-  providerId: string;
-  category: string;
-  skills: string[];
-  attachments: string[];
+  bounty: bigint;
+  deadline: number;
   isCompleted: boolean;
   isCancelled: boolean;
-  submissions?: {
+  submissions: {
     freelancer: string;
     submissionLink: string;
     isApproved: boolean;
@@ -43,24 +37,25 @@ const TaskDetails = () => {
 
   const loadTask = async () => {
     try {
-      if (!id) return;
-
-      // Fetch complete task data from backend
-      const taskData = await taskApi.getTask(Number(id));
-      
-      // Only fetch submissions from blockchain
       const contract = await getContract();
-      const submissionsData = await contract.getSubmissions(BigInt(id));
+      const taskData = await contract.getTask(id);
+      const submissionsData = await contract.getSubmissions(id);
       
       const accounts = await window.ethereum.request({
         method: 'eth_accounts'
       });
       const currentAccount = accounts[0];
       setUserAddress(currentAccount);
-      setIsProvider(currentAccount.toLowerCase() === taskData.providerId.toLowerCase());
+      setIsProvider(currentAccount.toLowerCase() === taskData[1].toLowerCase());
 
       setTask({
-        ...taskData,
+        id: Number(taskData[0]),
+        taskProvider: taskData[1],
+        description: taskData[2],
+        bounty: taskData[3],
+        deadline: Number(taskData[7]),
+        isCompleted: taskData[4],
+        isCancelled: taskData[5],
         submissions: submissionsData
       });
     } catch (error: any) {
@@ -78,7 +73,7 @@ const TaskDetails = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!submissionLink || !id) {
+    if (!submissionLink) {
       toast({
         title: "Missing submission link",
         description: "Please provide a submission link",
@@ -90,8 +85,7 @@ const TaskDetails = () => {
     setIsSubmitting(true);
     try {
       const contract = await getContract();
-      const taskId = BigInt(id);
-      const tx = await contract.submitWork(taskId, submissionLink);
+      const tx = await contract.submitWork(id, submissionLink);
       await tx.wait();
       
       toast({
@@ -113,18 +107,10 @@ const TaskDetails = () => {
   };
 
   const handleApprove = async (freelancerAddress: string) => {
-    if (!id) return;
-
     try {
       const contract = await getContract();
-      const taskId = BigInt(id);
-      const tx = await contract.approveSubmission(taskId, [freelancerAddress]);
+      const tx = await contract.approveSubmission(id, [freelancerAddress]);
       await tx.wait();
-
-      // Update task status in backend
-      // Convert id from string to number for backend API
-      const numericId = parseInt(id);
-      await taskApi.completeTask(numericId);
       
       toast({
         title: "Submission approved",
@@ -142,19 +128,10 @@ const TaskDetails = () => {
   };
 
   const handleCancel = async () => {
-    if (!id) return;
-
     try {
-      // Cancel on blockchain
       const contract = await getContract();
-      const taskId = BigInt(id);
-      const tx = await contract.cancelTask(taskId);
+      const tx = await contract.cancelTask(id);
       await tx.wait();
-
-      // Update task status in backend
-      // Convert id from string to number for backend API
-      const numericId = parseInt(id);
-      await taskApi.cancelTask(numericId);
       
       toast({
         title: "Task cancelled",
@@ -186,10 +163,10 @@ const TaskDetails = () => {
     );
   }
 
-  const isExpired = new Date(task.deadline).getTime() < Date.now();
-  const hasSubmitted = task.submissions?.some(
+  const isExpired = Date.now() > task.deadline * 1000;
+  const hasSubmitted = task.submissions.some(
     s => s.freelancer.toLowerCase() === userAddress.toLowerCase()
-  ) ?? false;
+  );
 
   return (
     <div className="container max-w-3xl mx-auto px-4 py-8">

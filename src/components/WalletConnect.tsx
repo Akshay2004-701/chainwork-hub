@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { switchToElectroneum } from '@/lib/contract';
+import { switchToSonicChain } from '@/lib/contract';
 import { Button } from '@/components/ui/button';
 import { Wallet, LogOut } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -36,8 +36,8 @@ export const WalletConnect = () => {
         return;
       }
 
-      // First switch to Electroneum network
-      await switchToElectroneum();
+      // First switch to Sonic Chain network
+      await switchToSonicChain();
       
       // Force MetaMask to show the account selection modal every time
       await window.ethereum.request({
@@ -55,10 +55,9 @@ export const WalletConnect = () => {
       
       toast({
         title: "Wallet connected",
-        description: "Successfully connected to Electroneum testnet",
+        description: "Successfully connected to Sonic Blaze testnet",
       });
     } catch (error: any) {
-      // If user rejected the connection or closed MetaMask
       toast({
         title: "Connection failed",
         description: error.message,
@@ -123,13 +122,13 @@ export const WalletConnect = () => {
   return (
     <div className="flex items-center gap-4">
       {address && (
-        <div className="text-sm font-medium bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
-          {parseFloat(balance).toFixed(4)} ETN
+        <div className="text-sm font-medium bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">
+          {parseFloat(balance).toFixed(4)} SONIC
         </div>
       )}
       <Button
         onClick={address ? disconnectWallet : connectWallet}
-        className="bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white rounded-full"
+        className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-full"
       >
         {address ? (
           <>

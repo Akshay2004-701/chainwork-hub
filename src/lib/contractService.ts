@@ -1,5 +1,5 @@
 
-import { getContract, switchToElectroneum } from './contract';
+import { getContract, switchToSonicChain } from './contract';
 import { ethers } from 'ethers';
 
 export class ContractService {
@@ -27,11 +27,6 @@ export class ContractService {
   static async getTask(id: number) {
     const contract = await getContract();
     return await contract.getTask(id);
-  }
-
-  static async getCounter() {
-    const contract = await getContract();
-    return await contract.getCounter();
   }
 
   static async getSubmissions(taskId: number) {

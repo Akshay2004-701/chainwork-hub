@@ -18,7 +18,7 @@ import { formatDate, formatAmount } from "@/lib/contract";
 interface Task {
   id: number;
   taskProvider: string;
-  title?: string;
+  title: string;
   description: string;
   bounty: bigint;
   deadline: number;
@@ -60,11 +60,13 @@ const TaskDetails = () => {
       setTask({
         id: Number(taskData[0]),
         taskProvider: taskData[1],
-        description: taskData[2],
-        bounty: taskData[3],
-        deadline: Number(taskData[7]),
-        isCompleted: taskData[4],
-        isCancelled: taskData[5],
+        title: taskData[2],
+        description: taskData[3],
+        bounty: taskData[4],
+        isCompleted: taskData[5],
+        isCancelled: taskData[6],
+        selectedFreelancers: taskData[7],
+        deadline: Number(taskData[8]),
         submissions: submissionsData
       });
     } catch (error: any) {

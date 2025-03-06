@@ -16,7 +16,7 @@ import { format } from "date-fns";
 interface Task {
   id: number;
   taskProvider: string;
-  title?: string;
+  title: string;
   description: string;
   bounty: bigint;
   deadline: number;
@@ -54,11 +54,13 @@ const MyTasks = () => {
         .map((task, index) => ({
           id: Number(task[0]),
           taskProvider: task[1],
-          description: task[2],
-          bounty: task[3],
-          deadline: Number(task[7]),
-          isCompleted: task[4],
-          isCancelled: task[5],
+          title: task[2],
+          description: task[3],
+          bounty: task[4],
+          isCompleted: task[5],
+          isCancelled: task[6],
+          selectedFreelancers: task[7],
+          deadline: Number(task[8]),
           submissions: submissionsData[index]
         }))
         .filter(task => 

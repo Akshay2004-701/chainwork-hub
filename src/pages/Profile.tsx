@@ -9,7 +9,7 @@ import { TaskCard } from "@/components/TaskCard";
 interface Task {
   id: number;
   taskProvider: string;
-  title?: string;
+  title: string;
   description: string;
   bounty: bigint;
   deadline: number;
@@ -42,37 +42,22 @@ const Profile = () => {
     loadProfile();
   }, []);
 
-  const extractTitle = (description: string) => {
-    const firstLineMatch = description.match(/^(.+?)(\n|$)/);
-    if (firstLineMatch && firstLineMatch[1].length < 100) {
-      return firstLineMatch[1];
-    }
-    return null;
-  };
-
   const loadTasks = async (userAddress: string) => {
     try {
       const tasksData = await ContractService.getAllTasks();
       
       const formattedTasks = tasksData
-        .map(task => {
-          const description = task[2];
-          const title = description.includes("Title:") 
-            ? description.split("Title:")[1].split("\n")[0].trim()
-            : extractTitle(description);
-            
-          return {
-            id: Number(task[0]),
-            taskProvider: task[1],
-            title: title,
-            description: description,
-            bounty: task[3],
-            isCompleted: task[4],
-            isCancelled: task[5],
-            selectedFreelancers: task[6],
-            deadline: Number(task[7])
-          };
-        })
+        .map(task => ({
+          id: Number(task[0]),
+          taskProvider: task[1],
+          title: task[2],
+          description: task[3],
+          bounty: task[4],
+          isCompleted: task[5],
+          isCancelled: task[6],
+          selectedFreelancers: task[7],
+          deadline: Number(task[8])
+        }))
         .filter(task => task.id > 0);
 
       const posted = formattedTasks.filter(

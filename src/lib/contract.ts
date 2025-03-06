@@ -1,28 +1,10 @@
 
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = '0x52A5514566149efA8710d264Be4C3075706a8C67';
+const CONTRACT_ADDRESS = '0x1E6464F6Da11A28547B32B6527443Be5f28d5BD6';
 const CHAIN_ID = 5201420;
 
 const ABI = [
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_taskId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address[]",
-        "name": "_selectedFreelancers",
-        "type": "address[]"
-      }
-    ],
-    "name": "approveSubmission",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
   {
     "anonymous": false,
     "inputs": [
@@ -49,55 +31,6 @@ const ABI = [
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_taskId",
-        "type": "uint256"
-      }
-    ],
-    "name": "cancelTask",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_taskId",
-        "type": "uint256"
-      }
-    ],
-    "name": "claimRefundAfterDeadline",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_title",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_description",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_deadline",
-        "type": "uint256"
-      }
-    ],
-    "name": "createTask",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -117,24 +50,6 @@ const ABI = [
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_taskId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_newDeadline",
-        "type": "uint256"
-      }
-    ],
-    "name": "extendDeadline",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -152,24 +67,6 @@ const ABI = [
     ],
     "name": "SubmissionAdded",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_taskId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_submissionLink",
-        "type": "string"
-      }
-    ],
-    "name": "submitWork",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "anonymous": false,
@@ -251,6 +148,91 @@ const ABI = [
     ],
     "name": "TaskCreated",
     "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_selectedFreelancers",
+        "type": "address[]"
+      }
+    ],
+    "name": "approveSubmission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "cancelTask",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimRefundAfterDeadline",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "createTask",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_newDeadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "extendDeadline",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -342,6 +324,11 @@ const ABI = [
       },
       {
         "internalType": "string",
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
         "name": "description",
         "type": "string"
       },
@@ -372,6 +359,24 @@ const ABI = [
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_submissionLink",
+        "type": "string"
+      }
+    ],
+    "name": "submitWork",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ];

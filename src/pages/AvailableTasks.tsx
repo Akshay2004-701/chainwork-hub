@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react';
 import { TaskCard } from '@/components/TaskCard';
-import { ContractService } from '@/lib/contractService';
+import { taskApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 const AvailableTasks = () => {
   const [tasks, setTasks] = useState<any[]>([]);
@@ -12,7 +13,7 @@ const AvailableTasks = () => {
   useEffect(() => {
     const loadTasks = async () => {
       try {
-        const tasksData = await ContractService.getAllTasks();
+        const tasksData = await taskApi.getAllTasks();
         setTasks(tasksData);
       } catch (error: any) {
         toast({
@@ -33,22 +34,23 @@ const AvailableTasks = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-6">Available Tasks</h1>
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-white dark:bg-gray-800 rounded-lg p-6 h-48" />
-            ))}
+          <div className="flex justify-center items-center min-h-[200px]">
+            <Loader2 className="w-8 h-8 animate-spin" />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tasks.map((task, index) => (
+            {tasks.map((task) => (
               <TaskCard
-                key={index}
-                id={Number(task[0])}
-                description={task[2]}
-                bounty={task[3]}
-                deadline={Number(task[7])}
-                isCompleted={task[4]}
-                isCancelled={task[5]}
+                key={task.id}
+                id={task.id}
+                title={task.title}
+                description={task.description}
+                bounty={task.bounty}
+                deadline={task.deadline}
+                category={task.category}
+                skills={task.skills}
+                isCompleted={task.isCompleted}
+                isCancelled={task.isCancelled}
               />
             ))}
           </div>

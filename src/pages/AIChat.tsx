@@ -13,7 +13,7 @@ interface Message {
   content: string;
 }
 
-const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
 // In a production environment, this should be handled more securely
 const API_KEY = "AIzaSyDJ6VY9Eryc-a-Ks-MQXpn8wGEBPmv0jMY";
 

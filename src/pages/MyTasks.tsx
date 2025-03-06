@@ -8,11 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Clock, DollarSign, AlertCircle } from "lucide-react";
 import { formatDate, formatAmount } from "@/lib/contract";
-import { ethers } from "ethers";
 
 interface Task {
   id: number;
-  taskProvider: string;
+  taskProvider: string;  // Added this field
   description: string;
   bounty: bigint;
   deadline: number;
@@ -52,7 +51,7 @@ const MyTasks = () => {
       const formattedTasks = tasksData
         .map((task, index) => ({
           id: Number(task[0]),
-          taskProvider: task[1],
+          taskProvider: task[1],  // Added this field in mapping
           description: task[2],
           bounty: task[3],
           deadline: Number(task[7]),
@@ -60,11 +59,10 @@ const MyTasks = () => {
           isCancelled: task[5],
           submissions: submissionsData[index]
         }))
-        .filter(task => task.id > 0 && currentAccount[0]?.toLowerCase() === task.taskProvider.toLowerCase());
+        .filter(task => task.id > 0 && currentAccount[0].toLowerCase() === task.taskProvider.toLowerCase());  // Updated to use taskProvider
 
       setTasks(formattedTasks);
     } catch (error: any) {
-      console.error("Error loading tasks:", error);
       toast({
         title: "Failed to load tasks",
         description: error.message,
@@ -120,14 +118,6 @@ const MyTasks = () => {
       });
     }
   };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">Loading tasks...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -213,7 +203,7 @@ const TaskCard = ({
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
               <DollarSign className="w-4 h-4 text-emerald-500" />
-              <span>{formatAmount(task.bounty)} SONIC</span>
+              <span>{formatAmount(task.bounty)} ETN</span>
             </div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-blue-500" />

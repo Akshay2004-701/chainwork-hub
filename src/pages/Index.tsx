@@ -10,13 +10,13 @@ const Index = () => {
         <div className="max-w-3xl mx-auto text-center">
           <div className="mb-8">
             <img 
-              src="/lovable-uploads/9614a89b-11c9-46c0-a0bf-0416eeeecd16.png" 
+              src="/placeholder.svg" 
               alt="ChainWork Logo" 
-              className="w-48 h-48 mx-auto mb-2"
+              className="w-32 h-32 mx-auto mb-6"
             />
-            <p className="text-md text-emerald-600 dark:text-emerald-400 font-medium tracking-widest mb-2">
-              TRUST MEETS TALENT
-            </p>
+            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+              ChainWork
+            </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
               The decentralized freelancing platform on Electroneum that connects talented freelancers with ambitious projects.
               Experience secure, transparent, and efficient collaboration powered by blockchain technology.
@@ -25,7 +25,7 @@ const Index = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/create-task">
-              <Button className="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600">
+              <Button className="w-full sm:w-auto bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600">
                 <Plus className="w-4 h-4 mr-2" />
                 Post a Task
               </Button>
@@ -33,7 +33,7 @@ const Index = () => {
             <Link to="/available-tasks">
               <Button 
                 variant="outline" 
-                className="w-full sm:w-auto border-2 border-emerald-500 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                className="w-full sm:w-auto border-2 border-teal-500 text-teal-700 dark:text-teal-300 hover:bg-teal-50 dark:hover:bg-teal-950"
               >
                 <Search className="w-4 h-4 mr-2" />
                 Browse Tasks
@@ -43,19 +43,19 @@ const Index = () => {
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-              <h3 className="text-xl font-semibold mb-2 text-emerald-600 dark:text-emerald-400">Secure Payments</h3>
+              <h3 className="text-xl font-semibold mb-2">Secure Payments</h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Smart contracts ensure secure and automatic payments upon task completion
               </p>
             </div>
             <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-              <h3 className="text-xl font-semibold mb-2 text-emerald-600 dark:text-emerald-400">Transparent</h3>
+              <h3 className="text-xl font-semibold mb-2">Transparent</h3>
               <p className="text-gray-600 dark:text-gray-300">
                 All transactions and task histories are recorded on the blockchain
               </p>
             </div>
             <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-              <h3 className="text-xl font-semibold mb-2 text-emerald-600 dark:text-emerald-400">No Middleman</h3>
+              <h3 className="text-xl font-semibold mb-2">No Middleman</h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Direct interaction between clients and freelancers
               </p>

@@ -24,7 +24,6 @@ interface TaskFormData {
   difficulty: string;
   estimatedDuration: string;
   tags: string;
-  requirements: string;
 }
 
 const CreateTask = () => {
@@ -36,8 +35,7 @@ const CreateTask = () => {
     category: "",
     difficulty: "",
     estimatedDuration: "",
-    tags: "",
-    requirements: ""
+    tags: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -59,10 +57,33 @@ const CreateTask = () => {
     try {
       const deadline = Math.floor(formData.deadline.getTime() / 1000);
       
-      // Now pass title, description, and deadline to the contract
+      // Embed the extra fields into the description
+      let enhancedDescription = formData.description;
+      
+      // Add category if provided
+      if (formData.category) {
+        enhancedDescription += `\n\nCategory: ${formData.category}`;
+      }
+      
+      // Add difficulty if provided
+      if (formData.difficulty) {
+        enhancedDescription += `\n\nDifficulty: ${formData.difficulty}`;
+      }
+      
+      // Add estimated duration if provided
+      if (formData.estimatedDuration) {
+        enhancedDescription += `\n\nEstimated Duration: ${formData.estimatedDuration}`;
+      }
+      
+      // Add tags if provided
+      if (formData.tags) {
+        enhancedDescription += `\n\nTags: ${formData.tags}`;
+      }
+      
+      // Now pass title, enhanced description, and deadline to the contract
       await ContractService.createTask(
         formData.title, 
-        formData.description, 
+        enhancedDescription, 
         deadline, 
         formData.bounty
       );
@@ -209,16 +230,6 @@ const CreateTask = () => {
                 placeholder="e.g., React, TypeScript, UI/UX"
                 value={formData.tags}
                 onChange={(e) => handleInputChange("tags", e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="requirements">Requirements</Label>
-              <Textarea
-                id="requirements"
-                placeholder="List any specific requirements or qualifications needed..."
-                value={formData.requirements}
-                onChange={(e) => handleInputChange("requirements", e.target.value)}
               />
             </div>
             

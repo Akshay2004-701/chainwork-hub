@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,21 +42,37 @@ const Profile = () => {
     loadProfile();
   }, []);
 
+  const extractTitle = (description: string) => {
+    const firstLineMatch = description.match(/^(.+?)(\n|$)/);
+    if (firstLineMatch && firstLineMatch[1].length < 100) {
+      return firstLineMatch[1];
+    }
+    return null;
+  };
+
   const loadTasks = async (userAddress: string) => {
     try {
       const tasksData = await ContractService.getAllTasks();
       
       const formattedTasks = tasksData
-        .map(task => ({
-          id: Number(task[0]),
-          taskProvider: task[1],
-          description: task[2],
-          bounty: task[3],
-          isCompleted: task[4],
-          isCancelled: task[5],
-          selectedFreelancers: task[6],
-          deadline: Number(task[7])
-        }))
+        .map(task => {
+          const description = task[2];
+          const title = description.includes("Title:") 
+            ? description.split("Title:")[1].split("\n")[0].trim()
+            : extractTitle(description);
+            
+          return {
+            id: Number(task[0]),
+            taskProvider: task[1],
+            title: title,
+            description: description,
+            bounty: task[3],
+            isCompleted: task[4],
+            isCancelled: task[5],
+            selectedFreelancers: task[6],
+            deadline: Number(task[7])
+          };
+        })
         .filter(task => task.id > 0);
 
       const posted = formattedTasks.filter(
@@ -129,6 +144,7 @@ const Profile = () => {
                 <TaskCard
                   key={task.id}
                   id={task.id}
+                  title={task.title}
                   description={task.description}
                   bounty={task.bounty}
                   deadline={task.deadline}
@@ -150,6 +166,7 @@ const Profile = () => {
                 <TaskCard
                   key={task.id}
                   id={task.id}
+                  title={task.title}
                   description={task.description}
                   bounty={task.bounty}
                   deadline={task.deadline}

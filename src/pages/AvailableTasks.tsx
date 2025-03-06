@@ -28,6 +28,15 @@ const AvailableTasks = () => {
     loadTasks();
   }, [toast]);
 
+  const extractTitle = (description: string) => {
+    // First check if the description starts with a title line
+    const firstLineMatch = description.match(/^(.+?)(\n|$)/);
+    if (firstLineMatch && firstLineMatch[1].length < 100) {
+      return firstLineMatch[1];
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
@@ -40,17 +49,27 @@ const AvailableTasks = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tasks.map((task, index) => (
-              <TaskCard
-                key={index}
-                id={Number(task[0])}
-                description={task[2]}
-                bounty={task[3]}
-                deadline={Number(task[7])}
-                isCompleted={task[4]}
-                isCancelled={task[5]}
-              />
-            ))}
+            {tasks.map((task, index) => {
+              // Get the task description
+              const description = task[2];
+              // Try to extract a title from the description
+              const title = task[2].includes("Title:") 
+                ? task[2].split("Title:")[1].split("\n")[0].trim()
+                : extractTitle(description);
+                
+              return (
+                <TaskCard
+                  key={index}
+                  id={Number(task[0])}
+                  title={title}
+                  description={description}
+                  bounty={task[3]}
+                  deadline={Number(task[7])}
+                  isCompleted={task[4]}
+                  isCancelled={task[5]}
+                />
+              );
+            })}
           </div>
         )}
       </div>

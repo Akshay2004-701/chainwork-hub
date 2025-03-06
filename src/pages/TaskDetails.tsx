@@ -2,18 +2,23 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { getContract } from "@/lib/contract";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ContractService } from "@/lib/contractService";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Clock, DollarSign, AlertCircle, Send } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { Clock, DollarSign, AlertCircle, Send, CalendarIcon } from "lucide-react";
 import { formatDate, formatAmount } from "@/lib/contract";
 
 interface Task {
   id: number;
   taskProvider: string;
+  title?: string;
   description: string;
   bounty: bigint;
   deadline: number;
@@ -33,13 +38,17 @@ const TaskDetails = () => {
   const [isProvider, setIsProvider] = useState(false);
   const [userAddress, setUserAddress] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newDeadline, setNewDeadline] = useState<Date | undefined>(undefined);
+  const [showExtendDeadline, setShowExtendDeadline] = useState(false);
   const { toast } = useToast();
 
   const loadTask = async () => {
     try {
-      const contract = await getContract();
-      const taskData = await contract.getTask(id);
-      const submissionsData = await contract.getSubmissions(id);
+      if (!id) return;
+      
+      const taskId = parseInt(id);
+      const taskData = await ContractService.getTask(taskId);
+      const submissionsData = await ContractService.getSubmissions(taskId);
       
       const accounts = await window.ethereum.request({
         method: 'eth_accounts'
@@ -73,7 +82,7 @@ const TaskDetails = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!submissionLink) {
+    if (!submissionLink || !id) {
       toast({
         title: "Missing submission link",
         description: "Please provide a submission link",
@@ -84,9 +93,7 @@ const TaskDetails = () => {
 
     setIsSubmitting(true);
     try {
-      const contract = await getContract();
-      const tx = await contract.submitWork(id, submissionLink);
-      await tx.wait();
+      await ContractService.submitWork(parseInt(id), submissionLink);
       
       toast({
         title: "Work submitted successfully",
@@ -107,10 +114,10 @@ const TaskDetails = () => {
   };
 
   const handleApprove = async (freelancerAddress: string) => {
+    if (!id) return;
+    
     try {
-      const contract = await getContract();
-      const tx = await contract.approveSubmission(id, [freelancerAddress]);
-      await tx.wait();
+      await ContractService.approveSubmission(parseInt(id), freelancerAddress);
       
       toast({
         title: "Submission approved",
@@ -128,10 +135,10 @@ const TaskDetails = () => {
   };
 
   const handleCancel = async () => {
+    if (!id) return;
+    
     try {
-      const contract = await getContract();
-      const tx = await contract.cancelTask(id);
-      await tx.wait();
+      await ContractService.cancelTask(parseInt(id));
       
       toast({
         title: "Task cancelled",
@@ -142,6 +149,51 @@ const TaskDetails = () => {
     } catch (error: any) {
       toast({
         title: "Failed to cancel task",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExtendDeadline = async () => {
+    if (!id || !newDeadline) return;
+    
+    try {
+      const deadlineTimestamp = Math.floor(newDeadline.getTime() / 1000);
+      await ContractService.extendDeadline(parseInt(id), deadlineTimestamp);
+      
+      toast({
+        title: "Deadline extended",
+        description: "The task deadline has been extended",
+      });
+      
+      setShowExtendDeadline(false);
+      setNewDeadline(undefined);
+      loadTask();
+    } catch (error: any) {
+      toast({
+        title: "Failed to extend deadline",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClaimRefund = async () => {
+    if (!id) return;
+    
+    try {
+      await ContractService.claimRefundAfterDeadline(parseInt(id));
+      
+      toast({
+        title: "Refund claimed",
+        description: "The bounty has been refunded to your wallet",
+      });
+      
+      loadTask();
+    } catch (error: any) {
+      toast({
+        title: "Failed to claim refund",
         description: error.message,
         variant: "destructive",
       });
@@ -174,7 +226,7 @@ const TaskDetails = () => {
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>Task #{task.id}</CardTitle>
+              <CardTitle>{task.title || `Task #${task.id}`}</CardTitle>
               <CardDescription className="mt-2">{task.description}</CardDescription>
             </div>
             <Badge variant={task.isCompleted ? "default" : task.isCancelled ? "destructive" : "secondary"}>
@@ -244,13 +296,92 @@ const TaskDetails = () => {
             </div>
           )}
 
-          {isProvider && !task.isCompleted && !task.isCancelled && task.submissions.length === 0 && (
+          {isProvider && !task.isCompleted && !task.isCancelled && (
+            <div className="space-y-4">
+              {showExtendDeadline ? (
+                <Card className="bg-muted">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Extend Deadline</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>New Deadline</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !newDeadline && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {newDeadline ? format(newDeadline, "PPP") : "Select new deadline"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={newDeadline}
+                            onSelect={setNewDeadline}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleExtendDeadline} 
+                        disabled={!newDeadline}
+                        className="flex-1"
+                      >
+                        Extend Deadline
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setShowExtendDeadline(false);
+                          setNewDeadline(undefined);
+                        }}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowExtendDeadline(true)}
+                    className="flex-1"
+                  >
+                    Extend Deadline
+                  </Button>
+                  
+                  {task.submissions.length === 0 && (
+                    <Button 
+                      variant="destructive" 
+                      onClick={handleCancel}
+                      className="flex-1"
+                    >
+                      Cancel Task
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {isProvider && isExpired && !task.isCompleted && !task.isCancelled && (
             <Button 
-              variant="destructive" 
-              onClick={handleCancel}
+              variant="outline" 
+              onClick={handleClaimRefund}
               className="w-full"
             >
-              Cancel Task
+              Claim Refund
             </Button>
           )}
         </CardContent>

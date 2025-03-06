@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { getContract } from "@/lib/contract";
+import { ContractService } from "@/lib/contractService";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
@@ -14,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { ethers } from "ethers";
 
 interface TaskFormData {
   title: string;
@@ -47,10 +46,10 @@ const CreateTask = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.bounty || !formData.deadline) {
+    if (!formData.title || !formData.description || !formData.bounty || !formData.deadline) {
       toast({
         title: "Missing required fields",
-        description: "Please fill in title, bounty and deadline",
+        description: "Please fill in title, description, bounty and deadline",
         variant: "destructive",
       });
       return;
@@ -58,16 +57,15 @@ const CreateTask = () => {
 
     setIsSubmitting(true);
     try {
-      const contract = await getContract();
       const deadline = Math.floor(formData.deadline.getTime() / 1000);
-      const bountyInWei = ethers.parseEther(formData.bounty);
       
-      // Only pass title, bounty, and deadline to the contract
-      const tx = await contract.createTask(formData.title, deadline, {
-        value: bountyInWei,
-      });
-      
-      await tx.wait();
+      // Now pass title, description, and deadline to the contract
+      await ContractService.createTask(
+        formData.title, 
+        formData.description, 
+        deadline, 
+        formData.bounty
+      );
       
       toast({
         title: "Task created successfully",
@@ -115,7 +113,7 @@ const CreateTask = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Description *</Label>
               <Textarea
                 id="description"
                 placeholder="Describe your task requirements..."

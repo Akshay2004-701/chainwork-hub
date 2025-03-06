@@ -3,17 +3,20 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getContract } from "@/lib/contract";
+import { ContractService } from "@/lib/contractService";
 import { formatAmount } from "@/lib/contract";
 import { TaskCard } from "@/components/TaskCard";
 
 interface Task {
   id: number;
+  taskProvider: string;
+  title?: string;
   description: string;
   bounty: bigint;
   deadline: number;
   isCompleted: boolean;
   isCancelled: boolean;
+  selectedFreelancers: string[];
 }
 
 const Profile = () => {
@@ -42,15 +45,8 @@ const Profile = () => {
 
   const loadTasks = async (userAddress: string) => {
     try {
-      const contract = await getContract();
-      const counter = await contract.getCounter();
-      const taskPromises = [];
-
-      for (let i = 1; i <= counter; i++) {
-        taskPromises.push(contract.getTask(i));
-      }
-
-      const tasksData = await Promise.all(taskPromises);
+      const tasksData = await ContractService.getAllTasks();
+      
       const formattedTasks = tasksData
         .map(task => ({
           id: Number(task[0]),
@@ -140,6 +136,11 @@ const Profile = () => {
                   isCancelled={task.isCancelled}
                 />
               ))}
+              {postedTasks.length === 0 && (
+                <div className="col-span-3 text-center py-10 text-gray-500">
+                  No tasks posted yet
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -156,6 +157,11 @@ const Profile = () => {
                   isCancelled={task.isCancelled}
                 />
               ))}
+              {completedSubmissions.length === 0 && (
+                <div className="col-span-3 text-center py-10 text-gray-500">
+                  No tasks completed yet
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>

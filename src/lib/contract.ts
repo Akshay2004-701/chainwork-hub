@@ -1,20 +1,379 @@
 
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = '0xBe6d390F58031329aD59F75df1E1359DAa4cA8a1';
+const CONTRACT_ADDRESS = '0x52A5514566149efA8710d264Be4C3075706a8C67';
 const CHAIN_ID = 5201420;
 
 const ABI = [
-  "function createTask(string memory _description, uint256 _deadline) external payable",
-  "function getTask(uint256 _taskId) external view returns (uint256 id, address taskProvider, string memory description, uint256 bounty, bool isCompleted, bool isCancelled, address[] memory selectedFreelancers, uint256 deadline)",
-  "function submitWork(uint256 _taskId, string memory _submissionLink) external",
-  "function getSubmissions(uint256 _taskId) external view returns (tuple(address freelancer, string submissionLink, bool isApproved)[] memory)",
-  "function approveSubmission(uint256 _taskId, address[] memory _selectedFreelancers) external",
-  "function cancelTask(uint256 _taskId) external",
-  "function getCounter() external view returns (uint256)",
-  "event TaskCreated(uint256 taskId, address indexed taskProvider, uint256 bounty, uint256 deadline)",
-  "event SubmissionAdded(uint256 taskId, address indexed freelancer)",
-  "event TaskCompleted(uint256 taskId, address[] selectedFreelancers, uint256 bounty)"
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_selectedFreelancers",
+        "type": "address[]"
+      }
+    ],
+    "name": "approveSubmission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "taskId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "taskProvider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "BountyRefunded",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "cancelTask",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "claimRefundAfterDeadline",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_title",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "createTask",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "taskId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "newDeadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "DeadlineExtended",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_newDeadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "extendDeadline",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "taskId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "freelancer",
+        "type": "address"
+      }
+    ],
+    "name": "SubmissionAdded",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_submissionLink",
+        "type": "string"
+      }
+    ],
+    "name": "submitWork",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "taskId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "taskProvider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "bountyRefunded",
+        "type": "uint256"
+      }
+    ],
+    "name": "TaskCancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "taskId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "selectedFreelancers",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "bounty",
+        "type": "uint256"
+      }
+    ],
+    "name": "TaskCompleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "taskId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "taskProvider",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "bounty",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "name": "TaskCreated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "getCounter",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getHeldBounty",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getSubmissions",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "freelancer",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "submissionLink",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isApproved",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct ChainWork.Submission[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_taskId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTask",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "taskProvider",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "bounty",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isCompleted",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isCancelled",
+        "type": "bool"
+      },
+      {
+        "internalType": "address[]",
+        "name": "selectedFreelancers",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deadline",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ];
 
 export const getContract = async () => {

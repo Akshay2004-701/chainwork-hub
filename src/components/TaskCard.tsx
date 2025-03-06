@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 
 interface TaskCardProps {
   id: number;
+  title?: string;
   description: string;
   bounty: bigint;
   deadline: number;
@@ -15,7 +16,7 @@ interface TaskCardProps {
   isCancelled: boolean;
 }
 
-export const TaskCard = ({ id, description, bounty, deadline, isCompleted, isCancelled }: TaskCardProps) => {
+export const TaskCard = ({ id, title, description, bounty, deadline, isCompleted, isCancelled }: TaskCardProps) => {
   const getStatusBadge = () => {
     if (isCompleted) return <Badge className="bg-green-500">Completed</Badge>;
     if (isCancelled) return <Badge variant="destructive">Cancelled</Badge>;
@@ -23,11 +24,13 @@ export const TaskCard = ({ id, description, bounty, deadline, isCompleted, isCan
     return <Badge className="bg-blue-500">Active</Badge>;
   };
 
+  const displayTitle = title || `Task #${id}`;
+
   return (
     <Card className="w-full hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">Task #{id}</CardTitle>
+          <CardTitle className="text-lg">{displayTitle}</CardTitle>
           {getStatusBadge()}
         </div>
         <CardDescription className="line-clamp-2">{description}</CardDescription>

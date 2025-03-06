@@ -3,10 +3,10 @@ import { getContract, switchToElectroneum } from './contract';
 import { ethers } from 'ethers';
 
 export class ContractService {
-  static async createTask(title: string, deadline: number, bountyAmount: string) {
+  static async createTask(title: string, description: string, deadline: number, bountyAmount: string) {
     const contract = await getContract();
     const bountyInWei = ethers.parseEther(bountyAmount);
-    const tx = await contract.createTask(title, deadline, {
+    const tx = await contract.createTask(title, description, deadline, {
       value: bountyInWei,
     });
     return await tx.wait();
@@ -50,5 +50,22 @@ export class ContractService {
     const contract = await getContract();
     const tx = await contract.cancelTask(taskId);
     return await tx.wait();
+  }
+
+  static async extendDeadline(taskId: number, newDeadline: number) {
+    const contract = await getContract();
+    const tx = await contract.extendDeadline(taskId, newDeadline);
+    return await tx.wait();
+  }
+
+  static async claimRefundAfterDeadline(taskId: number) {
+    const contract = await getContract();
+    const tx = await contract.claimRefundAfterDeadline(taskId);
+    return await tx.wait();
+  }
+
+  static async getHeldBounty(taskId: number) {
+    const contract = await getContract();
+    return await contract.getHeldBounty(taskId);
   }
 }

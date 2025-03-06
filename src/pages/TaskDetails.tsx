@@ -24,6 +24,7 @@ interface Task {
   deadline: number;
   isCompleted: boolean;
   isCancelled: boolean;
+  selectedFreelancers: string[];
   submissions: {
     freelancer: string;
     submissionLink: string;
@@ -57,6 +58,7 @@ const TaskDetails = () => {
       setUserAddress(currentAccount);
       setIsProvider(currentAccount.toLowerCase() === taskData[1].toLowerCase());
 
+      // Update setTask call with the correct property names matching the interface
       setTask({
         id: Number(taskData[0]),
         taskProvider: taskData[1],

@@ -25,9 +25,9 @@ interface Task {
   deadline: number;
 }
 
-const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
-// In a production environment, this should be handled more securely
-const API_KEY = "AIzaSyDJ6VY9Eryc-a-Ks-MQXpn8wGEBPmv0jMY";
+const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent";
+
+const API_KEY = import.meta.env.VITE_AI_API_KEY;
 
 const AIChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);

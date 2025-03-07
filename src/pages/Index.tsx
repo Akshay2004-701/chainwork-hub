@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Plus, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -10,7 +9,7 @@ const Index = () => {
       <div className="absolute inset-0 w-full h-[60%] flex items-center justify-center z-0 pointer-events-none">
         <div className="w-full h-full flex justify-center items-center">
           <img 
-            src="/lovable-uploads/0fa79bfc-ea3f-46cc-9441-ae537a2c0d0d.png" 
+            src="/cw-logo.png" 
             alt="ChainWork Background Logo" 
             className="w-auto h-full object-contain opacity-[0.03]"
           />
@@ -18,12 +17,12 @@ const Index = () => {
       </div>
       
       <div className="container mx-auto px-4 py-16 relative z-10">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-5xl mx-auto text-center">
           <div className="mb-8">
             <img 
-              src="/lovable-uploads/0fa79bfc-ea3f-46cc-9441-ae537a2c0d0d.png" 
+              src="/cw-logo.png" 
               alt="ChainWork Logo" 
-              className="w-32 h-32 mx-auto mb-6"
+              className="w-full max-w-[800px] mx-auto mb-6"
             />
             <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
               ChainWork

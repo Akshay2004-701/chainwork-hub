@@ -1,9 +1,8 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Bot, Loader2, MessageSquare, FileText, ArrowRight } from 'lucide-react';
+import { Send, Bot, Loader2, MessageSquare, FileText, ArrowRight, Trash2 } from 'lucide-react';
 import Markdown from 'markdown-to-jsx';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
@@ -30,7 +29,11 @@ const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-
 const API_KEY = import.meta.env.VITE_AI_API_KEY;
 
 const AIChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Initialize messages from localStorage if available
+    const savedMessages = localStorage.getItem('chatMessages');
+    return savedMessages ? JSON.parse(savedMessages) : [];
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isTaskMode, setIsTaskMode] = useState(false);
@@ -55,6 +58,10 @@ const AIChat = () => {
       loadTasks();
     }
   }, [isTaskMode]);
+
+  useEffect(() => {
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+  }, [messages]);
 
   const loadTasks = async () => {
     setIsLoadingTasks(true);
@@ -198,22 +205,37 @@ Please provide a detailed, helpful response regarding this specific task. Consid
     }
   };
 
+  const clearChatHistory = () => {
+    setMessages([]);
+    localStorage.removeItem('chatMessages');
+  };
+
   return (
-    <div className="h-screen flex flex-col bg-[#F6F6F7]">
-      <div className="flex justify-between items-center p-4 border-b bg-white shadow-sm">
+    <div className="h-screen flex flex-col bg-[#F6F6F7] dark:bg-gray-900 relative">
+      <div className="flex justify-between items-center p-4 border-b bg-white dark:bg-gray-900 dark:border-gray-800 shadow-sm">
         <div className="flex items-center gap-2">
           <Bot className="w-6 h-6 text-[#9b87f5]" />
-          <h1 className="text-xl font-semibold text-[#403E43]">ChainWork AI Assistant</h1>
+          <h1 className="text-xl font-semibold text-[#403E43] dark:text-gray-200">ChainWork AI Assistant</h1>
         </div>
         <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearChatHistory}
+            className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400"
+            disabled={messages.length === 0}
+          >
+            <Trash2 className="w-4 h-4" />
+            Clear Chat
+          </Button>
           <div className="flex items-center space-x-2">
             <Switch
               id="task-mode"
               checked={isTaskMode}
               onCheckedChange={setIsTaskMode}
-              className="data-[state=checked]:bg-[#9b87f5]"
+              className="data-[state=checked]:bg-[#9b87f5] dark:data-[state=unchecked]:bg-gray-600 dark:bg-gray-600"
             />
-            <Label htmlFor="task-mode" className="cursor-pointer flex gap-2 items-center text-[#403E43]">
+            <Label htmlFor="task-mode" className="cursor-pointer flex gap-2 items-center text-[#403E43] dark:text-gray-200">
               {isTaskMode ? (
                 <>
                   <FileText className="h-4 w-4 text-[#9b87f5]" />
@@ -235,10 +257,10 @@ Please provide a detailed, helpful response regarding this specific task. Consid
                 onValueChange={setSelectedTaskId}
                 disabled={isLoadingTasks}
               >
-                <SelectTrigger className="border-[#9b87f5]/30 focus:ring-[#9b87f5]/30">
+                <SelectTrigger className="border-[#9b87f5]/30 focus:ring-[#9b87f5]/30 dark:bg-gray-800 dark:border-gray-700">
                   <SelectValue placeholder="Select a task" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
                   {tasks.length === 0 ? (
                     <SelectItem value="no-tasks" disabled>
                       No active tasks available
@@ -257,14 +279,14 @@ Please provide a detailed, helpful response regarding this specific task. Consid
         </div>
       </div>
 
-      <ScrollArea className="flex-1 px-4 py-6" ref={scrollAreaRef}>
+      <ScrollArea className="flex-1 px-4 py-6 pb-[100px]" ref={scrollAreaRef}>
         <div className="space-y-6 max-w-3xl mx-auto">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-[calc(100vh-240px)] text-muted-foreground">
               <div className="w-16 h-16 rounded-full bg-[#9b87f5]/10 flex items-center justify-center mb-4">
                 <Bot className="w-8 h-8 text-[#9b87f5]" />
               </div>
-              <p className="text-lg font-medium text-[#403E43]">
+              <p className="text-lg font-medium text-[#403E43] dark:text-gray-200">
                 {isTaskMode 
                   ? "Select a task and ask questions specific to that task!" 
                   : "Hello! I'm your AI assistant. Ask me anything about tasks, freelancing, or blockchain technology!"}
@@ -298,7 +320,7 @@ Please provide a detailed, helpful response regarding this specific task. Consid
                   className={`rounded-2xl p-4 max-w-[90%] ${
                     message.role === 'user'
                       ? 'bg-[#9b87f5] text-white'
-                      : 'bg-[#F1F0FB] text-[#403E43]'
+                      : 'bg-[#F1F0FB] dark:bg-gray-800 text-[#403E43] dark:text-gray-200'
                   }`}
                 >
                   {message.role === 'assistant' ? (
@@ -343,7 +365,7 @@ Please provide a detailed, helpful response regarding this specific task. Consid
                             },
                             pre: {
                               props: {
-                                className: 'bg-gray-800 text-gray-100 rounded-md p-3 my-3 overflow-x-auto',
+                                className: 'bg-gray-800 text-gray-100 rounded-md p-3 my-3 overflow-x-auto dark:bg-gray-900',
                               },
                             },
                             code: {
@@ -371,7 +393,7 @@ Please provide a detailed, helpful response regarding this specific task. Consid
                 <div className="w-8 h-8 rounded-full bg-[#9b87f5]/10 flex items-center justify-center flex-shrink-0 mt-1">
                   <Bot className="w-5 h-5 text-[#9b87f5]" />
                 </div>
-                <div className="rounded-2xl p-4 bg-[#F1F0FB] text-[#403E43] flex items-center">
+                <div className="rounded-2xl p-4 bg-[#F1F0FB] dark:bg-gray-800 text-[#403E43] dark:text-gray-200 flex items-center">
                   <Loader2 className="w-5 h-5 animate-spin text-[#9b87f5]" />
                   <span className="ml-2">Analyzing data, please wait...</span>
                 </div>
@@ -381,7 +403,7 @@ Please provide a detailed, helpful response regarding this specific task. Consid
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t bg-white">
+      <div className="fixed bottom-0 left-0 right-0 p-4 border-t bg-white dark:bg-gray-900 dark:border-gray-800 shadow-lg">
         <div className="max-w-3xl mx-auto">
           <form onSubmit={handleSubmit} className="relative">
             <Textarea
@@ -390,7 +412,7 @@ Please provide a detailed, helpful response regarding this specific task. Consid
               placeholder={isTaskMode && selectedTaskId 
                 ? "Ask about the selected task..." 
                 : "Ask, write or search for anything..."}
-              className="min-h-[60px] pr-14 resize-none rounded-2xl border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]/30"
+              className="min-h-[60px] pr-14 resize-none rounded-2xl border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]/30 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();

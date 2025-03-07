@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Bot, Loader2, MessageSquare, FileText } from 'lucide-react';
+import { Send, Bot, Loader2, MessageSquare, FileText, ArrowRight } from 'lucide-react';
 import Markdown from 'markdown-to-jsx';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
@@ -199,11 +199,11 @@ Please provide a detailed, helpful response regarding this specific task. Consid
   };
 
   return (
-    <div className="h-[calc(100vh-64px)] flex flex-col">
-      <div className="flex justify-between items-center p-4 border-b">
+    <div className="h-screen flex flex-col bg-[#F6F6F7]">
+      <div className="flex justify-between items-center p-4 border-b bg-white shadow-sm">
         <div className="flex items-center gap-2">
-          <Bot className="w-6 h-6 text-primary" />
-          <h1 className="text-xl font-semibold">ChainWork AI Assistant</h1>
+          <Bot className="w-6 h-6 text-[#9b87f5]" />
+          <h1 className="text-xl font-semibold text-[#403E43]">ChainWork AI Assistant</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center space-x-2">
@@ -211,16 +211,17 @@ Please provide a detailed, helpful response regarding this specific task. Consid
               id="task-mode"
               checked={isTaskMode}
               onCheckedChange={setIsTaskMode}
+              className="data-[state=checked]:bg-[#9b87f5]"
             />
-            <Label htmlFor="task-mode" className="cursor-pointer flex gap-2 items-center">
+            <Label htmlFor="task-mode" className="cursor-pointer flex gap-2 items-center text-[#403E43]">
               {isTaskMode ? (
                 <>
-                  <FileText className="h-4 w-4" />
+                  <FileText className="h-4 w-4 text-[#9b87f5]" />
                   Task Mode
                 </>
               ) : (
                 <>
-                  <MessageSquare className="h-4 w-4" />
+                  <MessageSquare className="h-4 w-4 text-[#9b87f5]" />
                   General Mode
                 </>
               )}
@@ -234,7 +235,7 @@ Please provide a detailed, helpful response regarding this specific task. Consid
                 onValueChange={setSelectedTaskId}
                 disabled={isLoadingTasks}
               >
-                <SelectTrigger>
+                <SelectTrigger className="border-[#9b87f5]/30 focus:ring-[#9b87f5]/30">
                   <SelectValue placeholder="Select a task" />
                 </SelectTrigger>
                 <SelectContent>
@@ -256,18 +257,21 @@ Please provide a detailed, helpful response regarding this specific task. Consid
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-        <div className="space-y-4 max-w-3xl mx-auto">
+      <ScrollArea className="flex-1 px-4 py-6" ref={scrollAreaRef}>
+        <div className="space-y-6 max-w-3xl mx-auto">
           {messages.length === 0 && (
-            <div className="text-center text-muted-foreground py-8">
-              <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-240px)] text-muted-foreground">
+              <div className="w-16 h-16 rounded-full bg-[#9b87f5]/10 flex items-center justify-center mb-4">
+                <Bot className="w-8 h-8 text-[#9b87f5]" />
+              </div>
+              <p className="text-lg font-medium text-[#403E43]">
                 {isTaskMode 
                   ? "Select a task and ask questions specific to that task!" 
                   : "Hello! I'm your AI assistant. Ask me anything about tasks, freelancing, or blockchain technology!"}
               </p>
             </div>
           )}
+          
           {messages.map((message, index) => (
             <div
               key={index}
@@ -275,58 +279,139 @@ Please provide a detailed, helpful response regarding this specific task. Consid
                 message.role === 'user' ? 'justify-end' : 'justify-start'
               }`}
             >
-              <div
-                className={`max-w-[80%] rounded-lg p-4 ${
-                  message.role === 'user'
-                    ? 'bg-primary text-primary-foreground ml-4'
-                    : 'bg-muted'
-                }`}
-              >
-                {message.role === 'assistant' ? (
-                  <div className="prose dark:prose-invert prose-sm max-w-none">
-                    <Markdown>{message.content}</Markdown>
-                  </div>
-                ) : (
-                  <p>{message.content}</p>
-                )}
+              <div className={`flex gap-3 ${
+                message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+              }`}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                  {message.role === 'assistant' ? (
+                    <div className="w-8 h-8 rounded-full bg-[#9b87f5]/10 flex items-center justify-center">
+                      <Bot className="w-5 h-5 text-[#9b87f5]" />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#9b87f5] flex items-center justify-center">
+                      <MessageSquare className="w-4 h-4 text-white" />
+                    </div>
+                  )}
+                </div>
+                
+                <div
+                  className={`rounded-2xl p-4 max-w-[90%] ${
+                    message.role === 'user'
+                      ? 'bg-[#9b87f5] text-white'
+                      : 'bg-[#F1F0FB] text-[#403E43]'
+                  }`}
+                >
+                  {message.role === 'assistant' ? (
+                    <div className="prose dark:prose-invert prose-p:my-2 prose-headings:my-4 prose-pre:my-2 prose-ol:my-2 prose-ul:my-2 prose-li:my-0.5 max-w-none">
+                      <Markdown
+                        options={{
+                          overrides: {
+                            h1: {
+                              props: {
+                                className: 'text-2xl font-bold mt-6 mb-4',
+                              },
+                            },
+                            h2: {
+                              props: {
+                                className: 'text-xl font-bold mt-5 mb-3',
+                              },
+                            },
+                            h3: {
+                              props: {
+                                className: 'text-lg font-bold mt-4 mb-2',
+                              },
+                            },
+                            p: {
+                              props: {
+                                className: 'my-3 leading-relaxed',
+                              },
+                            },
+                            ul: {
+                              props: {
+                                className: 'my-3 pl-6 list-disc',
+                              },
+                            },
+                            ol: {
+                              props: {
+                                className: 'my-3 pl-6 list-decimal',
+                              },
+                            },
+                            li: {
+                              props: {
+                                className: 'my-1',
+                              },
+                            },
+                            pre: {
+                              props: {
+                                className: 'bg-gray-800 text-gray-100 rounded-md p-3 my-3 overflow-x-auto',
+                              },
+                            },
+                            code: {
+                              props: {
+                                className: 'bg-gray-200 dark:bg-gray-800 px-1 rounded',
+                              },
+                            },
+                          },
+                        }}
+                      >
+                        {message.content}
+                      </Markdown>
+                    </div>
+                  ) : (
+                    <p className="text-white">{message.content}</p>
+                  )}
+                </div>
               </div>
             </div>
           ))}
+          
           {isLoading && (
             <div className="flex justify-start">
-              <div className="max-w-[80%] rounded-lg p-4 bg-muted">
-                <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#9b87f5]/10 flex items-center justify-center flex-shrink-0 mt-1">
+                  <Bot className="w-5 h-5 text-[#9b87f5]" />
+                </div>
+                <div className="rounded-2xl p-4 bg-[#F1F0FB] text-[#403E43] flex items-center">
+                  <Loader2 className="w-5 h-5 animate-spin text-[#9b87f5]" />
+                  <span className="ml-2">Analyzing data, please wait...</span>
+                </div>
               </div>
             </div>
           )}
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t">
-        <div className="max-w-3xl mx-auto flex gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={isTaskMode && selectedTaskId 
-              ? "Ask about the selected task..." 
-              : "Type your message..."}
-            className="min-h-[60px]"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
+      <div className="p-4 border-t bg-white">
+        <div className="max-w-3xl mx-auto">
+          <form onSubmit={handleSubmit} className="relative">
+            <Textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={isTaskMode && selectedTaskId 
+                ? "Ask about the selected task..." 
+                : "Ask, write or search for anything..."}
+              className="min-h-[60px] pr-14 resize-none rounded-2xl border-[#9b87f5]/30 focus-visible:ring-[#9b87f5]/30"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
+            />
+            <Button 
+              type="submit" 
+              disabled={isLoading || (isTaskMode && !selectedTaskId)} 
+              className="absolute right-2 bottom-2 p-2 h-auto rounded-full bg-[#9b87f5] hover:bg-[#8b77e5]"
+              size="icon"
+            >
+              {isLoading ? 
+                <Loader2 className="w-5 h-5 animate-spin" /> : 
+                <ArrowRight className="w-5 h-5" />
               }
-            }}
-          />
-          <Button 
-            type="submit" 
-            disabled={isLoading || (isTaskMode && !selectedTaskId)} 
-            className="px-8"
-          >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </Button>
+            </Button>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

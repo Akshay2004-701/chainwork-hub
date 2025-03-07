@@ -5,12 +5,23 @@ import { Link } from 'react-router-dom';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-16">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+      {/* Background Logo with Fade Effect */}
+      <div className="absolute inset-0 w-full h-[60%] flex items-center justify-center z-0 pointer-events-none">
+        <div className="w-full h-full flex justify-center items-center">
+          <img 
+            src="/lovable-uploads/0fa79bfc-ea3f-46cc-9441-ae537a2c0d0d.png" 
+            alt="ChainWork Background Logo" 
+            className="w-auto h-full object-contain opacity-[0.03]"
+          />
+        </div>
+      </div>
+      
+      <div className="container mx-auto px-4 py-16 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <div className="mb-8">
             <img 
-              src="/placeholder.svg" 
+              src="/lovable-uploads/0fa79bfc-ea3f-46cc-9441-ae537a2c0d0d.png" 
               alt="ChainWork Logo" 
               className="w-32 h-32 mx-auto mb-6"
             />

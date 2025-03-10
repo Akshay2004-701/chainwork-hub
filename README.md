@@ -1,7 +1,7 @@
 
 # ChainWork - Decentralized Freelancing Platform
 
-A blockchain-powered freelancing platform built on Electroneum that connects talented freelancers with ambitious projects.
+A blockchain-powered freelancing platform built on Sonic Blaze that connects talented freelancers with ambitious projects.
 
 ## Getting Started
 
@@ -40,7 +40,7 @@ bun dev
 
 ## About ChainWork
 
-ChainWork is a decentralized freelancing platform that leverages blockchain technology to create secure, transparent, and efficient connections between clients and freelancers. Built on the Electroneum blockchain, it eliminates intermediaries, ensures secure payments through smart contracts, and provides a transparent history of all transactions and tasks.
+ChainWork is a decentralized freelancing platform that leverages blockchain technology to create secure, transparent, and efficient connections between clients and freelancers. Built on the Sonic Blaze blockchain, it eliminates intermediaries, ensures secure payments through smart contracts, and provides a transparent history of all transactions and tasks.
 
 ### Key Features
 

@@ -1,8 +1,7 @@
-
 import { ethers } from 'ethers';
 
-const CONTRACT_ADDRESS = '0x1E6464F6Da11A28547B32B6527443Be5f28d5BD6';
-const CHAIN_ID = 5201420;
+const CONTRACT_ADDRESS = '0xBaFDA276F60925950E0c406CF9c8c50b9534A869';
+const CHAIN_ID = 57040;
 
 const ABI = [
   {
@@ -408,14 +407,14 @@ export const switchToElectroneum = async () => {
         params: [
           {
             chainId: `0x${CHAIN_ID.toString(16)}`,
-            chainName: 'Electroneum Testnet',
+            chainName: 'Sonic Blaze Testnet',
             nativeCurrency: {
               name: 'ETN',
               symbol: 'ETN',
               decimals: 18,
             },
-            rpcUrls: ['https://testnet-rpc.electroneum.com'],
-            blockExplorerUrls: ['https://testnet-explorer.electroneum.com'],
+            rpcUrls: ['https://rpc.blaze.soniclabs.com'],
+            blockExplorerUrls: ['https://explorer.blaze.soniclabs.com'],
           },
         ],
       });

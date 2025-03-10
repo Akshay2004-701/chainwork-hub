@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Plus, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -28,7 +29,7 @@ const Index = () => {
               ChainWork
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              The decentralized freelancing platform on Electroneum that connects talented freelancers with ambitious projects.
+              The decentralized freelancing platform on Sonic Blaze that connects talented freelancers with ambitious projects.
               Experience secure, transparent, and efficient collaboration powered by blockchain technology.
             </p>
           </div>
@@ -61,7 +62,7 @@ const Index = () => {
             <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
               <h3 className="text-xl font-semibold mb-2">Transparent</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                All transactions and task histories are recorded on the blockchain
+                All transactions and task histories are recorded on the Sonic Blaze blockchain
               </p>
             </div>
             <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">

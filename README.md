@@ -37,6 +37,7 @@ bun dev
 ```
 
 4. Open your browser and navigate to `http://localhost:8080`
+5. *Note*: Add your free google gemini API key in the .env file before running to have the best experience.
 
 ## About ChainWork
 

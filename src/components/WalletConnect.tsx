@@ -55,7 +55,7 @@ export const WalletConnect = () => {
       
       toast({
         title: "Wallet connected",
-        description: "Successfully connected to Electroneum testnet",
+        description: "Successfully connected to Sonic Blaze testnet",
       });
     } catch (error: any) {
       // If user rejected the connection or closed MetaMask
@@ -124,7 +124,7 @@ export const WalletConnect = () => {
     <div className="flex items-center gap-4">
       {address && (
         <div className="text-sm font-medium bg-gradient-to-r from-teal-500 to-emerald-500 bg-clip-text text-transparent">
-          {parseFloat(balance).toFixed(4)} ETN
+          {parseFloat(balance).toFixed(4)} S
         </div>
       )}
       <Button

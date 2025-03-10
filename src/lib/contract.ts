@@ -1,3 +1,4 @@
+
 import { ethers } from 'ethers';
 
 const CONTRACT_ADDRESS = '0xBaFDA276F60925950E0c406CF9c8c50b9534A869';
@@ -409,8 +410,8 @@ export const switchToElectroneum = async () => {
             chainId: `0x${CHAIN_ID.toString(16)}`,
             chainName: 'Sonic Blaze Testnet',
             nativeCurrency: {
-              name: 'ETN',
-              symbol: 'ETN',
+              name: 'Sonic',
+              symbol: 'S',
               decimals: 18,
             },
             rpcUrls: ['https://rpc.blaze.soniclabs.com'],

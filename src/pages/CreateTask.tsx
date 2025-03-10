@@ -145,7 +145,7 @@ const CreateTask = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="bounty">Bounty (ETN) *</Label>
+              <Label htmlFor="bounty">Bounty (S) *</Label>
               <Input
                 id="bounty"
                 type="number"

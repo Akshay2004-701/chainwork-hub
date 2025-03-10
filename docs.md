@@ -3,7 +3,7 @@
 
 ## Overview
 
-ChainWork is a decentralized freelancing platform built on the Electroneum blockchain. It aims to revolutionize how freelancers and clients interact by eliminating intermediaries, ensuring secure payments, and providing complete transparency through blockchain technology.
+ChainWork is a decentralized freelancing platform built on the Sonic Blaze blockchain. It aims to revolutionize how freelancers and clients interact by eliminating intermediaries, ensuring secure payments, and providing complete transparency through blockchain technology.
 
 ## Core Features
 
@@ -12,7 +12,7 @@ ChainWork is a decentralized freelancing platform built on the Electroneum block
 #### Creating Tasks
 Clients can create tasks with detailed descriptions, including:
 - Title and description
-- Bounty amount (in ETN)
+- Bounty amount (in S)
 - Deadline
 - Category (Development, Design, Writing, Marketing, etc.)
 - Difficulty level (Beginner, Intermediate, Advanced)
@@ -46,7 +46,7 @@ All tasks are managed through smart contracts that:
 - Allow for dispute resolution
 
 #### Wallet Connection
-Users connect their Electroneum wallet to:
+Users connect their Sonic Blaze wallet to:
 - Create and fund tasks
 - Receive payments for completed work
 - Track transaction history
@@ -105,7 +105,7 @@ Task-specific AI assistance for:
 - ShadCN UI components
 
 ### Blockchain Integration
-- Electroneum blockchain for transactions
+- Sonic Blaze blockchain for transactions
 - Smart contracts for task management and payments
 - Web3 wallet integration
 
@@ -127,7 +127,7 @@ Task-specific AI assistance for:
    All work history is immutably recorded on the blockchain, creating a verifiable reputation system that freelancers can leverage across the platform and beyond.
 
 4. **Global Access**
-   Anyone with internet access and an Electroneum wallet can participate, regardless of banking access or geographic location.
+   Anyone with internet access and a Sonic Blaze wallet can participate, regardless of banking access or geographic location.
 
 ### For Clients
 

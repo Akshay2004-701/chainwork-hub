@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -103,7 +104,7 @@ const Profile = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 bg-primary/10 rounded-lg">
                 <h3 className="text-sm font-medium text-muted-foreground">Total Earnings</h3>
-                <p className="text-2xl font-bold">{formatAmount(totalEarnings)} ETN</p>
+                <p className="text-2xl font-bold">{formatAmount(totalEarnings)} S</p>
               </div>
               <div className="p-4 bg-primary/10 rounded-lg">
                 <h3 className="text-sm font-medium text-muted-foreground">Tasks Posted</h3>

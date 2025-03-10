@@ -38,7 +38,7 @@ export const TaskCard = ({ id, title, description, bounty, deadline, isCompleted
       <CardContent className="space-y-2">
         <div className="flex items-center gap-2">
           <DollarSign className="w-4 h-4 text-emerald-500" />
-          <span>{formatAmount(bounty)} ETN</span>
+          <span>{formatAmount(bounty)} S</span>
         </div>
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-blue-500" />

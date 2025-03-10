@@ -1,8 +1,7 @@
-
 import { ethers } from 'ethers';
 
 const CONTRACT_ADDRESS = '0xBaFDA276F60925950E0c406CF9c8c50b9534A869';
-const CHAIN_ID = 57040;
+const CHAIN_ID = 57054;
 
 const ABI = [
   {
@@ -415,7 +414,7 @@ export const switchToElectroneum = async () => {
               decimals: 18,
             },
             rpcUrls: ['https://rpc.blaze.soniclabs.com'],
-            blockExplorerUrls: ['https://explorer.blaze.soniclabs.com'],
+            blockExplorerUrls: ['https://testnet.sonicscan.org'],
           },
         ],
       });

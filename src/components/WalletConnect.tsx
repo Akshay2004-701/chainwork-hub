@@ -36,7 +36,7 @@ export const WalletConnect = () => {
         return;
       }
 
-      // First switch to Electroneum network
+      // First switch to Sonic Blaze network
       await switchToElectroneum();
       
       // Force MetaMask to show the account selection modal every time
